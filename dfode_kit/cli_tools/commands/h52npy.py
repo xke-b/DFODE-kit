@@ -1,7 +1,4 @@
 import argparse
-import numpy as np
-
-from dfode_kit.data_operations.contracts import stack_scalar_field_datasets
 
 def add_command_parser(subparsers):
     h52npy_parser = subparsers.add_parser('h52npy', help='Convert HDF5 scalar fields to NumPy array.')
@@ -21,6 +18,10 @@ def handle_command(args):
 
 def concatenate_datasets_to_npy(hdf5_file_path, output_npy_file):
     """Concatenate all datasets under the ``scalar_fields`` group and save to NPY."""
+    import numpy as np
+
+    from dfode_kit.data_operations.contracts import stack_scalar_field_datasets
+
     concatenated_array = stack_scalar_field_datasets(hdf5_file_path)
     print(f"Shape of the final concatenated array: {concatenated_array.shape}")
     np.save(output_npy_file, concatenated_array)
