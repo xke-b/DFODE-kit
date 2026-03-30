@@ -9,9 +9,11 @@ This repository contains DFODE-kit, a Python toolkit for sampling combustion sta
 
 ## Commands
 - Bootstrap lightweight harness env: `make bootstrap-harness`
+- Bootstrap docs env: `make bootstrap-docs`
 - Activate env: `source .venv/bin/activate`
 - Fast syntax check: `make check`
 - Run tests: `make test`
+- Build docs locally: `make docs-build`
 - Full local verification: `make verify`
 
 ## Workflow

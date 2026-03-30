@@ -1,0 +1,43 @@
+site_name: DFODE-kit Documentation
+site_url: https://deepflame-ai.github.io/DFODE-kit/
+site_description: Documentation for DFODE-kit, an agent-friendly toolkit for combustion chemistry integration with deep learning.
+repo_name: deepflame-ai/DFODE-kit
+repo_url: https://github.com/deepflame-ai/DFODE-kit
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - CLI: cli.md
+  - Architecture: architecture.md
+  - Tutorials and Workflow: tutorials.md
+  - Agent Docs:
+      - Overview: agents/README.md
+      - Verification: agents/verification.md
+      - Worktrees: agents/worktrees.md
+      - Roadmap: agents/roadmap.md
+      - Docs Topology: agents/topology.md
+      - CI Harness Plan: agents/ci-tests-plan.md
+      - CLI Usability Plan: agents/cli-usability-plan.md
+      - Data I/O Contract Plan: agents/data-io-contract-plan.md
+      - Train Config Plan: agents/train-config-plan.md

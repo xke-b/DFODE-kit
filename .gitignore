@@ -199,6 +199,9 @@ cython_debug/
 *.npy
 *.npz
 
+# MkDocs build output
+site/
+
 # PyTorch
 # *.pt
 # *.pth
