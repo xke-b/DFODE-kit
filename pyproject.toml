@@ -13,6 +13,11 @@ dependencies = [
     "torch",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
 [project.scripts]
 dfode-kit = "dfode_kit.cli_tools.main:main"
 
