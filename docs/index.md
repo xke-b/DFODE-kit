@@ -28,3 +28,5 @@ The current development direction is to make DFODE-kit:
 
 - GitHub: [deepflame-ai/DFODE-kit](https://github.com/deepflame-ai/DFODE-kit)
 - DeepFlame docs: [deepflame.deepmodeling.com](https://deepflame.deepmodeling.com/en/latest/)
+
+<!-- docs-pages trigger -->
