@@ -23,13 +23,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install minimal test deps
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest numpy
+      - name: Install uv
+        run: python -m pip install --upgrade pip uv
 
-      - name: Syntax check
-        run: make check
+      - name: Bootstrap harness env
+        run: make bootstrap-harness
 
-      - name: Run tests
-        run: make test
+      - name: Verify
+        run: make verify
