@@ -9,6 +9,7 @@ Use this docs tree for information that is too detailed or too volatile for `AGE
 - `worktrees.md`: parallel branch + worktree workflow
 - `roadmap.md`: near-term harness and refactor priorities
 - `topology.md`: documentation and repo topology guidance
+- `ci-tests-plan.md`: narrow next-step plan for harness parity and docs invariants
 
 ## Philosophy
 - `AGENTS.md` is the entrypoint.
