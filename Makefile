@@ -5,7 +5,7 @@ PYTHON ?= .venv/bin/python
 
 bootstrap-harness:
 	$(UV) venv .venv
-	$(UV) pip install --python $(PYTHON) pytest numpy
+	$(UV) pip install --python $(PYTHON) pytest numpy h5py
 
 check:
 	$(PYTHON) -m compileall dfode_kit tests

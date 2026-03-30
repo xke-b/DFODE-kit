@@ -3,6 +3,12 @@ import torch
 import numpy as np
 import cantera as ct
 
+from dfode_kit.data_operations.contracts import (
+    MECHANISM_ATTR,
+    SCALAR_FIELDS_GROUP,
+    read_scalar_field_datasets,
+    require_h5_attr,
+)
 from dfode_kit.utils import BCT, inverse_BCT
 
 def touch_h5(hdf5_file_path):
@@ -64,64 +70,20 @@ def touch_h5(hdf5_file_path):
                 print(f"  Dataset: {dataset_name}, Shape: {dataset.shape}")
 
 def get_TPY_from_h5(file_path):
-    """
-    Reads the scalar_fields group from an HDF5 file and stacks its datasets into a single array.
-
-    Parameters
-    ----------
-    file_path : str
-        The path to the HDF5 file containing the 'scalar_fields' group.
-
-    Returns
-    -------
-    numpy.ndarray
-        A 2D numpy array containing the stacked datasets from the 'scalar_fields' group.
-
-    Raises
-    ------
-    KeyError
-        If the 'scalar_fields' group does not exist in the HDF5 file.
-    OSError
-        If the file cannot be opened or read.
-
-    Notes
-    -----
-    This function retrieves all datasets within the 'scalar_fields' group of the 
-    specified HDF5 file and stacks them vertically into a single 2D array, where 
-    each dataset corresponds to a row in the resulting array.
-
-    Examples
-    --------
-    >>> stacked_data = get_TPY_from_h5('/path/to/file.h5')
-    >>> print(stacked_data.shape)
-    (num_datasets, num_columns)
-    """
-    with h5py.File(file_path, 'r') as f:
-        # Access the 'scalar_fields' group
-        scalar_fields_group = f['scalar_fields']
-        
-        # Get the number of datasets in the scalar_fields group
-        dataset_count = len(scalar_fields_group)
-        print(f'Number of datasets in scalar_fields group: {dataset_count}')
-        
-        # Read and stack all datasets into one large array
-        data_list = []
-        
-        for dataset_name in scalar_fields_group:
-            dataset = scalar_fields_group[dataset_name][:]
-            data_list.append(dataset)
-        
-        # Stack all datasets vertically (along a new axis)
-        stacked_data = np.vstack(data_list)
-    
-    return stacked_data
+    """Read and stack all datasets from the ``scalar_fields`` HDF5 group."""
+    datasets = read_scalar_field_datasets(file_path)
+    print(f"Number of datasets in {SCALAR_FIELDS_GROUP} group: {len(datasets)}")
+    return np.concatenate(list(datasets.values()), axis=0)
 
 def advance_reactor(gas, state, reactor, reactor_net, time_step):
     """Advance the reactor simulation for a given state."""
     state = state.flatten()
-    
+
     expected_shape = (2 + gas.n_species,)
-    assert state.shape == expected_shape
+    if state.shape != expected_shape:
+        raise ValueError(
+            f"Expected state shape {expected_shape}, got {state.shape}"
+        )
     
     gas.TPY = state[0], state[1], state[2:]
     
@@ -149,7 +111,10 @@ def predict_Y(model, model_path, d_arr, mech, device):
     gas = ct.Solution(mech)
     n_species = gas.n_species
     expected_dims = 2 + n_species
-    assert d_arr.shape[1] == expected_dims
+    if d_arr.shape[1] != expected_dims:
+        raise ValueError(
+            f"Expected input with {expected_dims} columns, got {d_arr.shape[1]}"
+        )
     
     
     state_dict = torch.load(model_path, map_location='cpu')
@@ -250,12 +215,9 @@ def integrate_h5(
     data_dict = {}
     
     with h5py.File(file_path, 'r') as f:
-        mech = f.attrs['mechanism']
-        scalar_fields_group = f['scalar_fields']
-        
-        for dataset_name in scalar_fields_group:
-            dataset = scalar_fields_group[dataset_name][:]
-            data_dict[dataset_name] = dataset  # Store in a dictionary
+        mech = require_h5_attr(f, MECHANISM_ATTR)
+
+    data_dict = read_scalar_field_datasets(file_path)
     
     if cvode_integration:
         gas = ct.Solution(mech)
