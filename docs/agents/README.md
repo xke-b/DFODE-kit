@@ -10,6 +10,9 @@ Use this docs tree for information that is too detailed or too volatile for `AGE
 - `roadmap.md`: near-term harness and refactor priorities
 - `topology.md`: documentation and repo topology guidance
 - `ci-tests-plan.md`: narrow next-step plan for harness parity and docs invariants
+- `cli-usability-plan.md`: CLI agent-usability improvement plan
+- `data-io-contract-plan.md`: data I/O contract and refactor plan
+- `train-config-plan.md`: training/config refactor plan for experiment throughput
 
 ## Philosophy
 - `AGENTS.md` is the entrypoint.

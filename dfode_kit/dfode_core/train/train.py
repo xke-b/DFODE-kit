@@ -1,47 +1,75 @@
-import torch
+from __future__ import annotations
+
 import numpy as np
-import os
 import cantera as ct
-from dfode_kit.dfode_core.model.mlp import MLP
+import torch
+
+from dfode_kit.dfode_core.model.mlp import build_mlp
+from dfode_kit.dfode_core.model.registry import create_model, register_model
+from dfode_kit.dfode_core.train.config import TrainingConfig, default_training_config, with_overrides
 from dfode_kit.dfode_core.train.formation import formation_calculate
+from dfode_kit.dfode_core.train.registry import create_trainer, register_trainer
+from dfode_kit.dfode_core.train.supervised_physics import build_supervised_physics_trainer
 from dfode_kit.utils import BCT
-from dfode_kit.data_operations import label_npy
-DFODE_ROOT = os.environ['DFODE_ROOT']
+
+
+def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
+    thermochem_states1 = labeled_data[:, 0 : 2 + n_species].copy()
+    thermochem_states2 = labeled_data[:, 2 + n_species :].copy()
+
+    print(thermochem_states1.shape, thermochem_states2.shape)
+    thermochem_states1[:, 2:] = np.clip(thermochem_states1[:, 2:], 0, 1)
+    thermochem_states2[:, 2:] = np.clip(thermochem_states2[:, 2:], 0, 1)
+
+    features = torch.tensor(
+        np.hstack((thermochem_states1[:, :2], BCT(thermochem_states1[:, 2:]))),
+        dtype=torch.float32,
+    ).to(device)
+    labels = torch.tensor(
+        BCT(thermochem_states2[:, 2:-1]) - BCT(thermochem_states1[:, 2:-1]),
+        dtype=torch.float32,
+    ).to(device)
+
+    features_mean = torch.mean(features, dim=0)
+    features_std = torch.std(features, dim=0)
+    labels_mean = torch.mean(labels, dim=0)
+    labels_std = torch.std(labels, dim=0)
+
+    normalized_features = (features - features_mean) / features_std
+    normalized_labels = (labels - labels_mean) / labels_std
+
+    return {
+        "features": normalized_features,
+        "labels": normalized_labels,
+        "features_mean": features_mean,
+        "features_std": features_std,
+        "labels_mean": labels_mean,
+        "labels_std": labels_std,
+    }
+
+
+def _register_defaults() -> None:
+    register_model("mlp", build_mlp)
+    register_trainer("supervised_physics", build_supervised_physics_trainer)
+
+
+
 def train(
     mech_path: str,
     source_file: str,
     output_path: str,
     time_step: float = 1e-6,
+    config: TrainingConfig | None = None,
 ) -> np.ndarray:
-    
-    """
-    Here is a simple demo of train script.
+    """Train a model using registry-selected components.
 
-    Trains a neural network model to predict changes in thermochemical states based on input data.
-
-    This function loads labeled data from a specified source file, initializes a chemical reaction model,
-    and constructs a multi-layer perceptron (MLP) for training. The model learns to predict the changes 
-    in species concentrations over time based on the input features. The training process includes 
-    normalization of input and output data, computation of multiple loss functions, and optimization of 
-    the model parameters.
-
-    Parameters
-    ----------
-    mech_path : str
-        Path to the mechanism file for the chemical model.
-    source_file : str
-        Path to the input data file containing labeled data.
-    output_path : str
-        Path to save the trained model and normalization parameters.
-    time_step : float, optional
-        Time step for the simulation, default is 1e-06 second.
-
-    Returns
-    -------
-    np.ndarray
-        Returns the trained model's output as a numpy array (if applicable).
+    The default config preserves the previous hard-coded MLP + Adam +
+    supervised-physics training behavior while making model/trainer selection
+    replaceable without editing this entrypoint.
     """
 
+    _register_defaults()
+    effective_config = with_overrides(config or default_training_config(), time_step=time_step)
     labeled_data = np.load(source_file)
 
     gas = ct.Solution(mech_path)
@@ -49,97 +77,51 @@ def train(
     formation_enthalpies = formation_calculate(mech_path)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model = create_model(
+        effective_config.model.name,
+        model_config=effective_config.model,
+        n_species=n_species,
+        device=device,
+    )
 
-    # Model instantiation
-    demo_model = MLP([2+n_species, 400, 400, 400, 400, n_species-1]).to(device)
+    training_tensors = _prepare_training_tensors(labeled_data, n_species, device)
+    training_tensors["formation_enthalpies"] = torch.tensor(
+        formation_enthalpies,
+        dtype=torch.float32,
+    ).to(device)
 
-    # Data loading
-    thermochem_states1 = labeled_data[:, 0:2+n_species]
-    thermochem_states2 = labeled_data[:, 2+n_species:]
-
-    print(thermochem_states1.shape, thermochem_states2.shape)
-    thermochem_states1[:, 2:] = np.clip(thermochem_states1[:, 2:], 0, 1)
-    thermochem_states2[:, 2:] = np.clip(thermochem_states2[:, 2:], 0, 1)
-
-    features = torch.tensor(np.hstack((thermochem_states1[:, :2], BCT(thermochem_states1[:, 2:]))), dtype=torch.float32).to(device)
-    labels = torch.tensor(BCT(thermochem_states2[:, 2:-1]) - BCT(thermochem_states1[:, 2:-1]), dtype=torch.float32).to(device)
-
-    features_mean = torch.mean(features, dim=0)
-    features_std = torch.std(features, dim=0)
-    features = (features - features_mean) / features_std
-
-    labels_mean = torch.mean(labels, dim=0)
-    labels_std = torch.std(labels, dim=0)
-    labels = (labels - labels_mean) / labels_std
-
-    formation_enthalpies = torch.tensor(formation_enthalpies, dtype=torch.float32).to(device)
-
-    # Training
-    loss_fn = torch.nn.L1Loss()
-
-    demo_model.train()  
-    max_epochs = 1500
-    initial_lr = 0.001
-    lr_decay_epoch = 500
-    batch_size = 20000
-    optimizer = torch.optim.Adam(demo_model.parameters(), lr=initial_lr)
-
-
-    for epoch in range(max_epochs):
-        if epoch > 0 and epoch % lr_decay_epoch == 0:
-            for param_group in optimizer.param_groups:
-                param_group['lr'] *= 0.1
-        
-        # 初始化损失值
-        total_loss1 = 0
-        total_loss2 = 0
-        total_loss3 = 0
-        total_batches = 0
-        total_loss = 0
-
-        for i in range(0, len(features), batch_size):
-            batch_features = features[i:i + batch_size]
-            batch_labels = labels[i:i + batch_size]
-
-            optimizer.zero_grad()
-
-            preds = demo_model(batch_features)
-            loss1 = loss_fn(preds, batch_labels)  
-
-            Y_in = ((batch_features[:, 2:-1] * features_std[2:-1] + features_mean[2:-1]) * 0.1 + 1) ** 10
-            Y_out = (((preds * labels_std + labels_mean) + (batch_features[:, 2:-1] * features_std[2:-1] + features_mean[2:-1])) * 0.1 + 1) ** 10
-            Y_target = (((batch_labels * labels_std + labels_mean) + (batch_features[:, 2:-1] * features_std[2:-1] + features_mean[2:-1])) * 0.1 + 1) ** 10
-
-            loss2 = loss_fn(Y_out.sum(axis=1), Y_in.sum(axis=1))
-
-            Y_out_total = torch.cat((Y_out, (1 - Y_out.sum(axis=1)).reshape(Y_out.shape[0], 1)), axis=1)
-            Y_target_total = torch.cat((Y_target, (1 - Y_target.sum(axis=1)).reshape(Y_target.shape[0], 1)), axis=1)
-
-            loss3 = loss_fn((formation_enthalpies * Y_out_total).sum(axis=1), (formation_enthalpies * Y_target_total).sum(axis=1)) / time_step
-            loss = loss1 + loss2 + loss3 / 1e+13
-
-            total_loss1 += loss1.item()
-            total_loss2 += loss2.item()
-            total_loss3 += loss3.item()
-            total_loss += loss.item()
-
-            loss.backward()
-            optimizer.step()
-        
-        total_loss1 /= (len(features) / batch_size)
-        total_loss2 /= (len(features) / batch_size)
-        total_loss3 /= (len(features) / batch_size)
-        total_loss /= (len(features) / batch_size)
-
-        print("Epoch: {}, Loss1: {:4e}, Loss2: {:4e}, Loss3: {:4e}, Loss: {:4e}".format(epoch+1, total_loss1, total_loss2, total_loss3, total_loss))
+    trainer = create_trainer(
+        effective_config.trainer.name,
+        trainer_config=effective_config.trainer,
+        optimizer_config=effective_config.optimizer,
+    )
+    trainer.fit(model=model, time_step=effective_config.time_step, **training_tensors)
 
     torch.save(
         {
-            'net': demo_model.state_dict(),
-            'data_in_mean': features_mean.cpu().numpy(),
-            'data_in_std': features_std.cpu().numpy(),
-            'data_target_mean': labels_mean.cpu().numpy(),
-            'data_target_std': labels_std.cpu().numpy(),
+            "net": model.state_dict(),
+            "data_in_mean": training_tensors["features_mean"].cpu().numpy(),
+            "data_in_std": training_tensors["features_std"].cpu().numpy(),
+            "data_target_mean": training_tensors["labels_mean"].cpu().numpy(),
+            "data_target_std": training_tensors["labels_std"].cpu().numpy(),
+            "training_config": {
+                "model": {
+                    "name": effective_config.model.name,
+                    "params": dict(effective_config.model.params),
+                },
+                "optimizer": {
+                    "name": effective_config.optimizer.name,
+                    "lr": effective_config.optimizer.lr,
+                },
+                "trainer": {
+                    "name": effective_config.trainer.name,
+                    "max_epochs": effective_config.trainer.max_epochs,
+                    "lr_decay_epoch": effective_config.trainer.lr_decay_epoch,
+                    "lr_decay_factor": effective_config.trainer.lr_decay_factor,
+                    "batch_size": effective_config.trainer.batch_size,
+                },
+                "time_step": effective_config.time_step,
+            },
         },
-        output_path
+        output_path,
     )
