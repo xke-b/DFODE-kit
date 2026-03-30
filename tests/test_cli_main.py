@@ -40,43 +40,19 @@ class DummyCommand:
         self.called_with = args
 
 
-def test_load_commands_sorts_discovered_modules(monkeypatch):
-    package = SimpleNamespace(__path__=["fake-path"], __name__="fake.commands")
-    alpha = SimpleNamespace(add_command_parser=lambda _: None, handle_command=lambda _: None)
-    beta = SimpleNamespace(add_command_parser=lambda _: None, handle_command=lambda _: None)
-
-    def fake_import_module(name):
-        if name == "fake.commands":
-            return package
-        if name == "fake.commands.beta":
-            return beta
-        if name == "fake.commands.alpha":
-            return alpha
-        raise AssertionError(f"unexpected import: {name}")
-
-    monkeypatch.setattr(command_loader.importlib, "import_module", fake_import_module)
-    monkeypatch.setattr(
-        command_loader.pkgutil,
-        "walk_packages",
-        lambda path, prefix: [
-            (None, "fake.commands.beta", False),
-            (None, "fake.commands.alpha", False),
-        ],
-    )
-
-    commands = command_loader.load_commands("fake.commands")
-
-    assert list(commands) == ["alpha", "beta"]
+def test_load_command_specs_are_sorted():
+    specs = command_loader.load_command_specs()
+    assert list(specs) == sorted(specs)
 
 
 def test_main_lists_commands_in_stable_order(monkeypatch, capsys):
-    commands = OrderedDict(
+    specs = OrderedDict(
         [
-            ("augment", SimpleNamespace(add_command_parser=lambda _: None, handle_command=lambda _: None)),
-            ("sample", SimpleNamespace(add_command_parser=lambda _: None, handle_command=lambda _: None)),
+            ("augment", {"module": "fake.augment", "help": "augment help"}),
+            ("sample", {"module": "fake.sample", "help": "sample help"}),
         ]
     )
-    monkeypatch.setattr(main, "load_commands", lambda: commands)
+    monkeypatch.setattr(main, "load_command_specs", lambda: specs)
 
     exit_code = main.main(["--list-commands"])
 
@@ -86,9 +62,24 @@ def test_main_lists_commands_in_stable_order(monkeypatch, capsys):
     assert captured.err == ""
 
 
+def test_main_list_commands_does_not_import_command_modules(monkeypatch):
+    specs = OrderedDict([("dummy", {"module": "fake.dummy", "help": "dummy help"})])
+    load_calls = []
+
+    monkeypatch.setattr(main, "load_command_specs", lambda: specs)
+    monkeypatch.setattr(main, "load_command", lambda *args, **kwargs: load_calls.append(args))
+
+    exit_code = main.main(["--list-commands"])
+
+    assert exit_code == 0
+    assert load_calls == []
+
+
 def test_main_dispatches_selected_command(monkeypatch):
     dummy = DummyCommand()
-    monkeypatch.setattr(main, "load_commands", lambda: OrderedDict([("dummy", dummy)]))
+    specs = OrderedDict([("dummy", {"module": "fake.dummy", "help": "dummy help"})])
+    monkeypatch.setattr(main, "load_command_specs", lambda: specs)
+    monkeypatch.setattr(main, "load_command", lambda name, command_specs=None: dummy)
 
     exit_code = main.main(["dummy"])
 
@@ -97,7 +88,7 @@ def test_main_dispatches_selected_command(monkeypatch):
 
 
 def test_main_returns_two_when_no_command_is_given(monkeypatch, capsys):
-    monkeypatch.setattr(main, "load_commands", lambda: OrderedDict())
+    monkeypatch.setattr(main, "load_command_specs", lambda: OrderedDict())
 
     exit_code = main.main([])
 
@@ -114,7 +105,9 @@ def test_main_returns_one_when_command_handler_fails(monkeypatch, capsys):
         add_command_parser=lambda subparsers: subparsers.add_parser("dummy", help="dummy command"),
         handle_command=raise_error,
     )
-    monkeypatch.setattr(main, "load_commands", lambda: OrderedDict([("dummy", failing_command)]))
+    specs = OrderedDict([("dummy", {"module": "fake.dummy", "help": "dummy help"})])
+    monkeypatch.setattr(main, "load_command_specs", lambda: specs)
+    monkeypatch.setattr(main, "load_command", lambda name, command_specs=None: failing_command)
 
     exit_code = main.main(["dummy"])
 
@@ -127,7 +120,9 @@ def test_main_returns_two_for_missing_handler(monkeypatch, capsys):
     handlerless = SimpleNamespace(
         add_command_parser=lambda subparsers: subparsers.add_parser("dummy", help="dummy command")
     )
-    monkeypatch.setattr(main, "load_commands", lambda: OrderedDict([("dummy", handlerless)]))
+    specs = OrderedDict([("dummy", {"module": "fake.dummy", "help": "dummy help"})])
+    monkeypatch.setattr(main, "load_command_specs", lambda: specs)
+    monkeypatch.setattr(main, "load_command", lambda name, command_specs=None: handlerless)
 
     exit_code = main.main(["dummy"])
 
