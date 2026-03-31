@@ -7,6 +7,8 @@ DFODE-kit provides two CLI entrypoints for running DeepFlame/OpenFOAM cases repr
 
 This document is the shared reference for both humans and AI agents.
 
+Implementation note: runtime config helpers now live under `dfode_kit.runtime.config`, and reusable run planning/execution helpers live under `dfode_kit.runtime.run_case`. The legacy import paths remain as compatibility shims during migration.
+
 ## Why a persistent runtime config exists
 
 Running DeepFlame cases usually requires machine-local paths and environment activation steps that do not belong in case templates:
@@ -155,7 +157,7 @@ Returns a JSON object containing:
 - `case_dir`
 - `runner`
 - `np`
-- `runtime_config`
+- `dfode_kit.runtime.config`
 - `shell_lines`
 - `shell_script`
 
@@ -206,7 +208,7 @@ source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
 source /path/to/deepflame-dev/bashrc
 
-python -m dfode_kit.cli_tools.main init oneD-flame \
+python -m dfode_kit.cli.main init oneD-flame \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
   --fuel CH4:1 \
   --oxidizer air \
@@ -228,7 +230,7 @@ dfode-kit run-case \
 ```bash
 source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
-python -m dfode_kit.cli_tools.main sample \
+python -m dfode_kit.cli.main sample \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
   --case /path/to/run/oneD_flame_CH4_phi1 \
   --save /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \

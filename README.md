@@ -93,7 +93,7 @@ source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
 source /path/to/deepflame-dev/bashrc
 
-python -m dfode_kit.cli_tools.main init oneD-flame \
+python -m dfode_kit.cli.main init oneD-flame \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
   --fuel CH4:1 \
   --oxidizer air \
@@ -105,7 +105,7 @@ python -m dfode_kit.cli_tools.main init oneD-flame \
 ### 3. Run the case
 
 ```bash
-python -m dfode_kit.cli_tools.main run-case \
+python -m dfode_kit.cli.main run-case \
   --case /path/to/run/oneD_flame_CH4_phi1 \
   --apply --json
 ```
@@ -113,7 +113,7 @@ python -m dfode_kit.cli_tools.main run-case \
 ### 4. Sample the finished case into HDF5
 
 ```bash
-python -m dfode_kit.cli_tools.main sample \
+python -m dfode_kit.cli.main sample \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
   --case /path/to/run/oneD_flame_CH4_phi1 \
   --save /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
@@ -133,10 +133,15 @@ If you are working on the repository itself, see:
 
 ## Repository layout
 
-- `dfode_kit/cli_tools/` — CLI entrypoints and subcommands
-- `dfode_kit/df_interface/` — DeepFlame/OpenFOAM-facing helpers and case setup
-- `dfode_kit/data_operations/` — dataset I/O, sampling, augmentation, labeling
-- `dfode_kit/dfode_core/` — model and training code
+- `dfode_kit/cli/` — canonical CLI entrypoints and subcommands
+- `dfode_kit/cli_tools/` — legacy compatibility shims for older CLI import paths
+- `dfode_kit/cases/` — canonical case init/preset/sampling boundaries for DeepFlame/OpenFOAM workflows
+- `dfode_kit/df_interface/` — legacy compatibility shims for case-facing helpers during the cases migration
+- `dfode_kit/data/` — emerging canonical package for data contracts and HDF5 I/O helpers
+- `dfode_kit/data_operations/` — legacy and transitional dataset I/O, augmentation, labeling, and integration helpers
+- `dfode_kit/models/` — canonical model package
+- `dfode_kit/training/` — canonical training package
+- `dfode_kit/dfode_core/` — legacy compatibility surface for model/training code during migration
 - `canonical_cases/` — canonical flame case templates
 - `tutorials/` — tutorial notebooks and workflow examples
 - `docs/` — published project documentation

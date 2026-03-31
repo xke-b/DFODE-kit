@@ -3,77 +3,9 @@ import torch
 import numpy as np
 import cantera as ct
 
-from dfode_kit.data_operations.contracts import (
-    MECHANISM_ATTR,
-    SCALAR_FIELDS_GROUP,
-    read_scalar_field_datasets,
-    require_h5_attr,
-)
+from dfode_kit.data.contracts import MECHANISM_ATTR, require_h5_attr
+from dfode_kit.data.io_hdf5 import get_TPY_from_h5, touch_h5
 from dfode_kit.utils import BCT, inverse_BCT
-
-def touch_h5(hdf5_file_path):
-    """
-    Load an HDF5 file and print its contents and metadata.
-
-    Parameters
-    ----------
-    hdf5_file_path : str
-        The path to the HDF5 file to be opened.
-
-    Returns
-    -------
-    None
-        This function does not return any value. It prints the metadata, groups,
-        and datasets contained in the HDF5 file.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the specified HDF5 file does not exist.
-    OSError
-        If the file cannot be opened as an HDF5 file.
-
-    Notes
-    -----
-    This function provides a simple way to inspect the structure and metadata of 
-    an HDF5 file, making it useful for debugging and understanding data organization.
-
-    Examples
-    --------
-    >>> touch_h5('/path/to/file.h5')
-    Metadata in the HDF5 file:
-    root_directory: /path/to/root
-    mechanism: /path/to/mechanism.yaml
-    species_names: ['T', 'p', 'species1', ...]
-
-    Groups and datasets in the HDF5 file:
-    Group: scalar_fields
-      Dataset: 0, Shape: (100, 5)
-      Dataset: 1, Shape: (100, 5)
-    Group: mesh
-      Dataset: Cx, Shape: (100, 1)
-    """
-    print(f"Inspecting HDF5 file: {hdf5_file_path}\n")
-    
-    with h5py.File(hdf5_file_path, 'r') as hdf5_file:
-        # Print the metadata
-        print("Metadata in the HDF5 file:")
-        for attr in hdf5_file.attrs:
-            print(f"{attr}: {hdf5_file.attrs[attr]}")
-        
-        # Print the names of the groups and datasets in the file
-        print("\nGroups and datasets in the HDF5 file:")
-        for group_name, group in hdf5_file.items():
-            print(f"Group: {group_name}")
-            for dataset_name in group.keys():
-                dataset = group[dataset_name]
-                print(f"  Dataset: {dataset_name}, Shape: {dataset.shape}")
-
-def get_TPY_from_h5(file_path):
-    """Read and stack all datasets from the ``scalar_fields`` HDF5 group."""
-    datasets = read_scalar_field_datasets(file_path)
-    print(f"Number of datasets in {SCALAR_FIELDS_GROUP} group: {len(datasets)}")
-    return np.concatenate(list(datasets.values()), axis=0)
 
 def advance_reactor(gas, state, reactor, reactor_net, time_step):
     """Advance the reactor simulation for a given state."""

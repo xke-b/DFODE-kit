@@ -15,6 +15,8 @@
 - Split mixed-responsibility modules (`h5_kit.py` first)
 - Introduce model/training registries or config-driven training
 - Add architecture-specific worktrees and smoke tests
+- Move toward the target package topology in `docs/agents/package-topology-spec.md`
+- Prefer small package-boundary refactors over one-shot tree rewrites
 
 ## Phase 4: Experiment velocity
 - Support multiple model architectures without editing core train loop

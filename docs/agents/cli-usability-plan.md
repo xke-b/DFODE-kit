@@ -4,7 +4,7 @@
 Improve only the DFODE-kit CLI surface for coding-agent use: deterministic behavior, explicit command dispatch, and cleaner automation semantics.
 
 ## Audit summary
-Current CLI issues observed in `dfode_kit/cli_tools/`:
+Current CLI issues observed in `dfode_kit/cli/`:
 - `main.py` does not return exit codes; command success/failure is not standardized for automation.
 - command discovery in `command_loader.py` depends on dynamic module walk order, which is not guaranteed to be stable.
 - command dispatch is implicit and only prints a fallback message for missing commands instead of failing predictably.

@@ -2,10 +2,11 @@
 
 ## Current repository structure
 
-- `dfode_kit/cli_tools/`: CLI entrypoints and subcommands
+- `dfode_kit/cli/`: CLI entrypoints and subcommands
 - `dfode_kit/data_operations/`: dataset I/O, contracts, labeling, augmentation, integration utilities
 - `dfode_kit/dfode_core/`: models, training, registries, preprocessing
-- `dfode_kit/df_interface/`: DeepFlame/OpenFOAM-facing helpers
+- `dfode_kit/cases/`: explicit case init, preset, sampling, and DeepFlame-facing helpers
+- `dfode_kit/df_interface/`: compatibility layer for the legacy case-facing import paths
 - `docs/agents/`: agent-facing operational and planning docs
 - `tests/`: lightweight repository and harness tests
 

@@ -2,7 +2,7 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 import sys
 
-from dfode_kit.cli_tools.commands import init_helpers
+from dfode_kit.cli.commands import init_helpers
 
 
 class FakeCfg:
@@ -100,14 +100,14 @@ def test_apply_one_d_flame_plan_copies_template_and_writes_metadata(tmp_path, mo
 
     monkeypatch.setattr(init_helpers, '_build_one_d_flame_config', lambda inputs, overrides, quiet=False: FakeCfg())
 
-    fake_module = ModuleType('dfode_kit.df_interface.oneDflame_setup')
+    fake_module = ModuleType('dfode_kit.cases.deepflame')
     calls = {}
 
     def fake_setup(cfg, case_path):
         calls['case_path'] = str(case_path)
 
     fake_module.setup_one_d_flame_case = fake_setup
-    monkeypatch.setitem(sys.modules, 'dfode_kit.df_interface.oneDflame_setup', fake_module)
+    monkeypatch.setitem(sys.modules, 'dfode_kit.cases.deepflame', fake_module)
 
     result = init_helpers.apply_one_d_flame_plan(plan, force=False)
 

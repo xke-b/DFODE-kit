@@ -1,7 +1,4 @@
-import json
-from pathlib import Path
-
-from dfode_kit import runtime_config
+from dfode_kit.runtime import config as runtime_config
 
 
 def test_runtime_config_round_trip(tmp_path, monkeypatch):
@@ -28,3 +25,10 @@ def test_validate_config_key_rejects_unknown():
         assert 'Unknown config key' in str(exc)
     else:
         raise AssertionError('expected ValueError')
+
+
+def test_legacy_runtime_config_shim_matches_new_module():
+    from dfode_kit import runtime_config as legacy_runtime_config
+
+    assert legacy_runtime_config.get_config_path is runtime_config.get_config_path
+    assert legacy_runtime_config.resolve_runtime_config is runtime_config.resolve_runtime_config

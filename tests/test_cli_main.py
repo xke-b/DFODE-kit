@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,8 +9,8 @@ import types
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_INIT_PATH = ROOT / "dfode_kit" / "__init__.py"
-COMMAND_LOADER_PATH = ROOT / "dfode_kit" / "cli_tools" / "command_loader.py"
-MAIN_PATH = ROOT / "dfode_kit" / "cli_tools" / "main.py"
+COMMAND_LOADER_PATH = ROOT / "dfode_kit" / "cli" / "command_loader.py"
+MAIN_PATH = ROOT / "dfode_kit" / "cli" / "main.py"
 
 
 package_spec = spec_from_file_location("dfode_kit", PACKAGE_INIT_PATH)
@@ -18,19 +19,19 @@ assert package_spec.loader is not None
 sys.modules["dfode_kit"] = dfode_pkg
 package_spec.loader.exec_module(dfode_pkg)
 
-cli_pkg = sys.modules.setdefault("dfode_kit.cli_tools", types.ModuleType("dfode_kit.cli_tools"))
-cli_pkg.__path__ = [str(ROOT / "dfode_kit" / "cli_tools")]
+cli_pkg = sys.modules.setdefault("dfode_kit.cli", types.ModuleType("dfode_kit.cli"))
+cli_pkg.__path__ = [str(ROOT / "dfode_kit" / "cli")]
 
-command_loader_spec = spec_from_file_location("dfode_kit.cli_tools.command_loader", COMMAND_LOADER_PATH)
+command_loader_spec = spec_from_file_location("dfode_kit.cli.command_loader", COMMAND_LOADER_PATH)
 command_loader = module_from_spec(command_loader_spec)
 assert command_loader_spec.loader is not None
-sys.modules["dfode_kit.cli_tools.command_loader"] = command_loader
+sys.modules["dfode_kit.cli.command_loader"] = command_loader
 command_loader_spec.loader.exec_module(command_loader)
 
-main_spec = spec_from_file_location("dfode_kit.cli_tools.main", MAIN_PATH)
+main_spec = spec_from_file_location("dfode_kit.cli.main", MAIN_PATH)
 main = module_from_spec(main_spec)
 assert main_spec.loader is not None
-sys.modules["dfode_kit.cli_tools.main"] = main
+sys.modules["dfode_kit.cli.main"] = main
 main_spec.loader.exec_module(main)
 
 
@@ -137,3 +138,11 @@ def test_main_returns_two_for_missing_handler(monkeypatch, capsys):
     captured = capsys.readouterr()
     assert exit_code == 2
     assert "Unknown command: dummy" in captured.err
+
+
+def test_cli_tools_command_loader_shim_re_exports_cli_symbols():
+    shim = import_module("dfode_kit.cli_tools.command_loader")
+    direct = import_module("dfode_kit.cli.command_loader")
+
+    assert shim.load_command_specs is direct.load_command_specs
+    assert shim.load_command is direct.load_command

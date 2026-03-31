@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 
-CONTRACTS_PATH = Path(__file__).resolve().parents[1] / "dfode_kit" / "data_operations" / "contracts.py"
+CONTRACTS_PATH = Path(__file__).resolve().parents[1] / "dfode_kit" / "data" / "contracts.py"
 SPEC = spec_from_file_location("dfode_contracts_module", CONTRACTS_PATH)
 contracts = module_from_spec(SPEC)
 assert SPEC.loader is not None
@@ -23,8 +23,16 @@ def write_scalar_fields_h5(path: Path, datasets: dict[str, np.ndarray], mechanis
 
 
 def test_importing_data_contracts_does_not_require_cantera_or_torch():
-    contracts_module = importlib.import_module("dfode_kit.data_operations.contracts")
+    contracts_module = importlib.import_module("dfode_kit.data.contracts")
     assert contracts_module.SCALAR_FIELDS_GROUP == "scalar_fields"
+
+
+def test_legacy_data_operations_contracts_path_re_exports_new_contracts_module():
+    legacy_contracts = importlib.import_module("dfode_kit.data_operations.contracts")
+    new_contracts = importlib.import_module("dfode_kit.data.contracts")
+
+    assert legacy_contracts.SCALAR_FIELDS_GROUP == new_contracts.SCALAR_FIELDS_GROUP
+    assert legacy_contracts.stack_scalar_field_datasets is new_contracts.stack_scalar_field_datasets
 
 
 def test_stack_scalar_field_datasets_uses_deterministic_numeric_order(tmp_path):
