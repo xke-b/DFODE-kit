@@ -39,8 +39,6 @@ This preset preserves the current hardcoded empirical logic from:
 - `dfode_kit/cases/presets.py`
 - method: `OneDFreelyPropagatingFlameConfig.update_config()`
 
-Legacy `dfode_kit/df_interface/*` imports remain as compatibility shims during the package-topology migration.
-
 ## Stable intent
 
 The command is a **preset instantiator**, not a claim of universal best practice.

@@ -133,15 +133,12 @@ If you are working on the repository itself, see:
 
 ## Repository layout
 
-- `dfode_kit/cli/` — canonical CLI entrypoints and subcommands
-- `dfode_kit/cli_tools/` — legacy compatibility shims for older CLI import paths
-- `dfode_kit/cases/` — canonical case init/preset/sampling boundaries for DeepFlame/OpenFOAM workflows
-- `dfode_kit/df_interface/` — legacy compatibility shims for case-facing helpers during the cases migration
-- `dfode_kit/data/` — emerging canonical package for data contracts and HDF5 I/O helpers
-- `dfode_kit/data_operations/` — legacy and transitional dataset I/O, augmentation, labeling, and integration helpers
-- `dfode_kit/models/` — canonical model package
-- `dfode_kit/training/` — canonical training package
-- `dfode_kit/dfode_core/` — legacy compatibility surface for model/training code during migration
+- `dfode_kit/cli/` — CLI entrypoints and subcommands
+- `dfode_kit/cases/` — case init, presets, sampling, and DeepFlame/OpenFOAM-facing helpers
+- `dfode_kit/data/` — data contracts, HDF5 I/O, and integration helpers
+- `dfode_kit/data_operations/` — augmentation and labeling workflows
+- `dfode_kit/models/` — model architectures and registries
+- `dfode_kit/training/` — training configuration, registries, training loops, and preprocessing
 - `canonical_cases/` — canonical flame case templates
 - `tutorials/` — tutorial notebooks and workflow examples
 - `docs/` — published project documentation

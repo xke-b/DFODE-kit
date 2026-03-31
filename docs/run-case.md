@@ -7,7 +7,7 @@ DFODE-kit provides two CLI entrypoints for running DeepFlame/OpenFOAM cases repr
 
 This document is the shared reference for both humans and AI agents.
 
-Implementation note: runtime config helpers now live under `dfode_kit.runtime.config`, and reusable run planning/execution helpers live under `dfode_kit.runtime.run_case`. The legacy import paths remain as compatibility shims during migration.
+Implementation note: runtime config helpers live under `dfode_kit.runtime.config`, and reusable run planning/execution helpers live under `dfode_kit.runtime.run_case`.
 
 ## Why a persistent runtime config exists
 

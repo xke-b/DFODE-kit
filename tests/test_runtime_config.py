@@ -27,8 +27,6 @@ def test_validate_config_key_rejects_unknown():
         raise AssertionError('expected ValueError')
 
 
-def test_legacy_runtime_config_shim_matches_new_module():
-    from dfode_kit import runtime_config as legacy_runtime_config
-
-    assert legacy_runtime_config.get_config_path is runtime_config.get_config_path
-    assert legacy_runtime_config.resolve_runtime_config is runtime_config.resolve_runtime_config
+def test_runtime_config_module_exports_expected_helpers():
+    assert callable(runtime_config.get_config_path)
+    assert callable(runtime_config.resolve_runtime_config)

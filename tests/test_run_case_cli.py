@@ -86,9 +86,6 @@ def test_execute_run_case_json_mode_writes_logs(monkeypatch, tmp_path):
     assert calls['command'] == ['bash', '-lc', 'echo hello']
 
 
-
-def test_legacy_run_case_helpers_shim_matches_new_module():
-    from dfode_kit.cli_tools.commands import run_case_helpers as legacy_run_case_helpers
-
-    assert legacy_run_case_helpers.resolve_run_case_plan is run_case_helpers.resolve_run_case_plan
-    assert legacy_run_case_helpers.execute_run_case is run_case_helpers.execute_run_case
+def test_run_case_helpers_module_is_importable_from_runtime_package():
+    assert callable(run_case_helpers.resolve_run_case_plan)
+    assert callable(run_case_helpers.execute_run_case)

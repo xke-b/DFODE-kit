@@ -140,9 +140,8 @@ def test_main_returns_two_for_missing_handler(monkeypatch, capsys):
     assert "Unknown command: dummy" in captured.err
 
 
-def test_cli_tools_command_loader_shim_re_exports_cli_symbols():
-    shim = import_module("dfode_kit.cli_tools.command_loader")
+def test_cli_command_loader_module_is_importable():
     direct = import_module("dfode_kit.cli.command_loader")
 
-    assert shim.load_command_specs is direct.load_command_specs
-    assert shim.load_command is direct.load_command
+    assert callable(direct.load_command_specs)
+    assert callable(direct.load_command)

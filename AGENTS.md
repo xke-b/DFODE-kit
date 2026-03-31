@@ -25,9 +25,11 @@ This repository contains DFODE-kit, a Python toolkit for sampling combustion sta
 
 ## Structure
 - `dfode_kit/cli/`: CLI entrypoints and subcommands
-- `dfode_kit/data_operations/`: dataset I/O, labeling, augmentation, integration utilities
-- `dfode_kit/dfode_core/`: models, training, preprocessing
-- `dfode_kit/df_interface/`: DeepFlame/OpenFOAM-facing helpers
+- `dfode_kit/cases/`: case init, presets, sampling, and DeepFlame/OpenFOAM-facing helpers
+- `dfode_kit/data/`: data contracts, HDF5 I/O, and integration helpers
+- `dfode_kit/data_operations/`: labeling and augmentation workflows
+- `dfode_kit/models/`: model architectures and registries
+- `dfode_kit/training/`: training configuration, loops, and preprocessing
 - `docs/agents/`: deeper agent-facing docs and workflow conventions
 - `tests/`: lightweight harness tests; keep them fast
 
