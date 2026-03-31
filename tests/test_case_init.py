@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from dfode_kit.df_interface.case_init import (
+from dfode_kit.cases.init import (
     AIR_OXIDIZER,
     DEFAULT_ONE_D_FLAME_PRESET,
     OneDFlameInitInputs,

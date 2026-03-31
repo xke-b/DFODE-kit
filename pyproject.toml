@@ -22,4 +22,4 @@ dev = [
 dfode-kit = "dfode_kit.cli.main:main"
 
 [tool.setuptools.packages.find]
-include = ["dfode_kit", "dfode_kit.*"]
+include = ["dfode_kit*"]
