@@ -1,10 +1,11 @@
 import time
 
-import cantera as ct
 import numpy as np
 
 
 def single_step(npstate, chem, time_step=1e-6):
+    import cantera as ct
+
     gas = ct.Solution(chem)
     T_old, P_old, Y_old = npstate[0], npstate[1], npstate[2:]
     gas.TPY = T_old, P_old, Y_old
@@ -33,6 +34,8 @@ def random_perturb(
     inert_idx: int = -1,
     time_step: float = 1e-6,
 ) -> np.ndarray:
+    import cantera as ct
+
     array = array[array[:, 0] > frozenTem]
 
     gas = ct.Solution(mech_path)
@@ -141,6 +144,8 @@ def label(
     mech_path: str,
     time_step: float = 1e-06,
 ) -> np.ndarray:
+    import cantera as ct
+
     from dfode_kit.data.integration import advance_reactor
 
     gas = ct.Solution(mech_path)

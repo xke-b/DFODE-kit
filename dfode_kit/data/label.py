@@ -1,6 +1,5 @@
 import time
 
-import cantera as ct
 import numpy as np
 
 
@@ -9,6 +8,8 @@ def label_npy(
     time_step,
     source_path,
 ):
+    import cantera as ct
+
     from dfode_kit.data.integration import advance_reactor
 
     gas = ct.Solution(mech_path)
