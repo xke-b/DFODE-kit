@@ -49,7 +49,7 @@ def handle_command(args):
     import numpy as np
 
     from dfode_kit.data_operations.augment_data import random_perturb
-    from dfode_kit.data_operations.h5_kit import get_TPY_from_h5
+    from dfode_kit.data.io_hdf5 import get_TPY_from_h5
 
     print('Handling augment command')
     print(f'Loading data from h5 file: {args.h5_file}')

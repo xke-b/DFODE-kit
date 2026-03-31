@@ -20,7 +20,7 @@ def concatenate_datasets_to_npy(hdf5_file_path, output_npy_file):
     """Concatenate all datasets under the ``scalar_fields`` group and save to NPY."""
     import numpy as np
 
-    from dfode_kit.data_operations.contracts import stack_scalar_field_datasets
+    from dfode_kit.data.contracts import stack_scalar_field_datasets
 
     concatenated_array = stack_scalar_field_datasets(hdf5_file_path)
     print(f"Shape of the final concatenated array: {concatenated_array.shape}")
