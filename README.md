@@ -1,24 +1,50 @@
-# DFODE-kit: Deep Learning Package for Combustion Kinetics
+# DFODE-kit
 
-DFODE-kit is an open-source Python package designed to accelerate combustion simulations by efficiently solving flame chemical kinetics governed by high-dimensional stiff ordinary differential equations (ODEs). This package integrates deep learning methodologies to replace conventional numerical integration, enabling significant speedups and improved accuracy.
+DFODE-kit is a Python toolkit for building machine-learning surrogates for combustion chemistry integration.
+It helps users move from **canonical flame simulations** to **sampled datasets**, **augmented and labeled training data**, and finally to **trained neural-network models** that can be deployed in DeepFlame/OpenFOAM workflows.
 
-## Features
-- **Efficient Sampling Module**: Extracts high-quality thermochemical states from low-dimensional manifolds in canonical flames.
-- **Data Augmentation**: Enhances training datasets to approximate high-dimensional composition spaces in turbulent flames.
-- **Neural Network Implementation**: Supports optimized training with physical constraints to ensure model fidelity.
-- **Seamless Integration**: Easily deploy trained models within the DeepFlame CFD solver or other platforms like OpenFOAM.
-- **Robust Performance**: Achieves high accuracy with up to two orders of magnitude speedup in various combustion scenarios.
+In practice, DFODE-kit sits between:
+- **DeepFlame / OpenFOAM**, which generate and run reacting-flow cases, and
+- **ML training workflows**, which need clean, structured, reproducible chemistry datasets.
 
-## Environment Setup
-Create a conda environment with Python 3.9:
+## Documentation
+
+- Project documentation: https://deepflame-ai.github.io/DFODE-kit/
+- DeepFlame documentation: https://deepflame.deepmodeling.com/en/latest/
+- DeepFlame source: https://github.com/deepmodeling/deepflame-dev
+
+## What DFODE-kit does
+
+DFODE-kit currently supports the core workflow below:
+
+1. **Configure runtime paths** for OpenFOAM, Conda, and DeepFlame
+2. **Initialize** canonical flame cases from explicit presets
+3. **Run** those cases reproducibly
+4. **Sample** thermochemical states into HDF5
+5. **Augment** sampled datasets
+6. **Label** them with Cantera/CVODE integration
+7. **Train** neural-network surrogates
+
+## Current CLI commands
+
+- `config` — store machine-local runtime paths
+- `init` — initialize canonical cases from explicit presets
+- `run-case` — execute a case-local runner such as `Allrun`
+- `sample` — convert case outputs to HDF5 datasets
+- `augment` — augment sampled states
+- `label` — generate supervised labels
+- `train` — train a neural-network model
+- `h52npy` — convert HDF5 scalar fields to NumPy arrays
+
+List commands locally with:
 
 ```bash
-conda create --name dfode_env python=3.9
-conda activate dfode_env
+dfode-kit --list-commands
 ```
 
 ## Installation
-To install DFODE-kit, clone the repository and install the dependencies:
+
+Clone the repository and install the package in editable mode:
 
 ```bash
 git clone https://github.com/deepflame-ai/DFODE-kit.git
@@ -26,70 +52,115 @@ cd DFODE-kit
 pip install -e .
 ```
 
-## Documentation
-Published docs:
-
-- https://deepflame-ai.github.io/DFODE-kit/
-
-## Usage
-Once you have installed DFODE-kit, you can use it to sample data, augment datasets, train models, and make predictions. Below is a basic command-line interface (CLI) format:
+If you want the lightweight local verification environment used in this repository:
 
 ```bash
-dfode-kit CMD ARGS
+uv venv .venv
+uv pip install --python .venv/bin/python -e '.[dev]'
 ```
 
+## Runtime requirements
 
-### Commands Available:
-- `config`: Store machine-local runtime paths such as OpenFOAM, Conda, and DeepFlame activation scripts.
-- `init`: Initialize canonical cases from explicit presets.
-- `run-case`: Execute a case-local runner such as `Allrun` using stored runtime configuration.
-- `sample`: Perform raw data sampling from canonical flame simulations.
-- `augment`: Apply random noise and physical constraints to improve the training dataset.
-- `label`: Generate supervised learning labels using Cantera's CVODE solver.
-- `train`: Train neural network models based on the specified datasets and parameters.
+DFODE-kit itself is a Python package, but some workflows also require local installations of:
 
-For example, a validated end-to-end 1D flame workflow is:
+- **OpenFOAM**
+- **DeepFlame**
+- **Conda** (or an equivalent Python environment manager)
+- **Cantera** for case initialization and labeling workflows
+
+For DeepFlame/OpenFOAM-backed case execution, you must configure machine-local runtime paths with `dfode-kit config`.
+
+## Quickstart: 1D CH4 flame workflow
+
+The example below shows a portable workflow for a 1D freely propagating premixed CH4/air flame at equivalence ratio 1.0.
+
+### 1. Store machine-local runtime configuration
 
 ```bash
-# one-time machine-local runtime config
-dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
-dfode-kit config set conda_sh /home/xk/miniconda3/etc/profile.d/conda.sh
+dfode-kit config set openfoam_bashrc /path/to/openfoam/etc/bashrc
+dfode-kit config set conda_sh /path/to/conda/etc/profile.d/conda.sh
 dfode-kit config set conda_env_name deepflame
-dfode-kit config set deepflame_bashrc /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+dfode-kit config set deepflame_bashrc /path/to/deepflame-dev/bashrc
+```
 
-# init case from a DeepFlame-compatible Python env
-source /opt/openfoam7/etc/bashrc
-source /home/xk/miniconda3/etc/profile.d/conda.sh
+### 2. Initialize a canonical 1D flame case
+
+Run this from a Python environment that has Cantera available:
+
+```bash
+source /path/to/openfoam/etc/bashrc
+source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
-source /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+source /path/to/deepflame-dev/bashrc
+
 python -m dfode_kit.cli_tools.main init oneD-flame \
-  --mech /home/xk/deepflame/df_1be82b6/deepflame-dev/mechanisms/CH4/gri30.yaml \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
   --fuel CH4:1 \
   --oxidizer air \
   --phi 1.0 \
-  --out /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --out /path/to/run/oneD_flame_CH4_phi1 \
   --apply --force
+```
 
-# run case
+### 3. Run the case
+
+```bash
 python -m dfode_kit.cli_tools.main run-case \
-  --case /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --case /path/to/run/oneD_flame_CH4_phi1 \
   --apply --json
+```
 
-# sample case
+### 4. Sample the finished case into HDF5
+
+```bash
 python -m dfode_kit.cli_tools.main sample \
-  --mech /home/xk/deepflame/df_1be82b6/deepflame-dev/mechanisms/CH4/gri30.yaml \
-  --case /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
-  --save /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli/ch4_phi1_sample.h5 \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
+  --case /path/to/run/oneD_flame_CH4_phi1 \
+  --save /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
   --include_mesh
 ```
 
-Comprehensive tutorials are provided in the `tutorials/` directory, including step-by-step guides for 1D premixed flames and 2D HIT flames.
+## Recommended documentation entry points
 
-Note that running the simulations requires DeepFlame to be installed. Refer to the [DeepFlame GitHub repository](https://github.com/deepmodeling/deepflame-dev) and [documentation](https://deepflame.deepmodeling.com/en/latest/) for installation instructions.
+If you are using the CLI, start with:
+- https://deepflame-ai.github.io/DFODE-kit/cli/
+- https://deepflame-ai.github.io/DFODE-kit/init/
+- https://deepflame-ai.github.io/DFODE-kit/run-case/
 
-## Directories
-- **dfode-kit**: Main procedure and functions.
-- **mechanisms**: Thermochemical mechanism folder.
-- **canonical_cases**: Canonical cases for data sampling.
-- **tutorials**: Tutorials with sampling cases. 
+If you are working on the repository itself, see:
+- `AGENTS.md`
+- `docs/agents/README.md`
 
+## Repository layout
+
+- `dfode_kit/cli_tools/` — CLI entrypoints and subcommands
+- `dfode_kit/df_interface/` — DeepFlame/OpenFOAM-facing helpers and case setup
+- `dfode_kit/data_operations/` — dataset I/O, sampling, augmentation, labeling
+- `dfode_kit/dfode_core/` — model and training code
+- `canonical_cases/` — canonical flame case templates
+- `tutorials/` — tutorial notebooks and workflow examples
+- `docs/` — published project documentation
+- `tests/` — lightweight verification tests
+
+## Design principles in the current refactor
+
+Recent work in this repository focuses on making DFODE-kit:
+
+- easier to use from the CLI,
+- easier for coding agents to operate safely,
+- more reproducible for scientific workflows,
+- more explicit about empirical setup assumptions,
+- more modular for experimentation with model and training changes.
+
+## Verification for contributors
+
+This repository includes a lightweight local verification loop:
+
+```bash
+make bootstrap-harness
+make verify
+```
+
+## License
+
+This project is distributed under the terms in [`LICENSE`](LICENSE).

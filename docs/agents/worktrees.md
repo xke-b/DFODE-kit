@@ -4,10 +4,10 @@ Use separate git worktrees for parallel agent tasks.
 
 ## Current branches/worktrees
 - integration branch: `agent-harness-refactor`
-- `/mnt/d/u_deepflame_agent/Projects/dfode-wt/cli` -> `agent-cli-contract`
-- `/mnt/d/u_deepflame_agent/Projects/dfode-wt/train` -> `agent-train-config`
-- `/mnt/d/u_deepflame_agent/Projects/dfode-wt/data` -> `agent-data-io`
-- `/mnt/d/u_deepflame_agent/Projects/dfode-wt/ci` -> `agent-ci-tests`
+- `<worktree-root>/cli` -> `agent-cli-contract`
+- `<worktree-root>/train` -> `agent-train-config`
+- `<worktree-root>/data` -> `agent-data-io`
+- `<worktree-root>/ci` -> `agent-ci-tests`
 
 ## Guidelines
 - One worktree = one main concern.
