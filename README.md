@@ -26,6 +26,11 @@ cd DFODE-kit
 pip install -e .
 ```
 
+## Documentation
+Published docs:
+
+- https://deepflame-ai.github.io/DFODE-kit/
+
 ## Usage
 Once you have installed DFODE-kit, you can use it to sample data, augment datasets, train models, and make predictions. Below is a basic command-line interface (CLI) format:
 
