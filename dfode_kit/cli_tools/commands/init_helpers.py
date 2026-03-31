@@ -6,7 +6,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from typing import Any
 
-from dfode_kit.df_interface.case_init import (
+from dfode_kit.cases.init import (
     DEFAULT_ONE_D_FLAME_TEMPLATE,
     OneDFlameInitInputs,
     dump_plan_json,
@@ -117,7 +117,7 @@ def apply_one_d_flame_plan(
     overrides = one_d_flame_overrides_from_plan(plan)
     cfg = _build_one_d_flame_config(inputs, overrides, quiet=quiet)
 
-    from dfode_kit.df_interface.oneDflame_setup import setup_one_d_flame_case
+    from dfode_kit.cases.deepflame import setup_one_d_flame_case
 
     if quiet:
         with redirect_stdout(io.StringIO()):
@@ -139,7 +139,7 @@ def _build_one_d_flame_config(
     overrides: dict[str, Any],
     quiet: bool = False,
 ):
-    from dfode_kit.df_interface.flame_configurations import OneDFreelyPropagatingFlameConfig
+    from dfode_kit.cases.presets import OneDFreelyPropagatingFlameConfig
 
     cfg = OneDFreelyPropagatingFlameConfig(
         mechanism=inputs.mechanism,

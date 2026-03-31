@@ -109,7 +109,7 @@ def _handle_one_d_flame(args):
     json_result = {'case_type': 'oneD-flame'} if args.json else None
 
     if args.write_config:
-        from dfode_kit.df_interface.case_init import dump_plan_json
+        from dfode_kit.cases.init import dump_plan_json
 
         config_path = dump_plan_json(plan, args.write_config)
         if args.json:

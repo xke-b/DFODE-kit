@@ -134,7 +134,8 @@ If you are working on the repository itself, see:
 ## Repository layout
 
 - `dfode_kit/cli_tools/` — CLI entrypoints and subcommands
-- `dfode_kit/df_interface/` — DeepFlame/OpenFOAM-facing helpers and case setup
+- `dfode_kit/cases/` — emerging case init/preset/sampling boundaries for DeepFlame/OpenFOAM workflows
+- `dfode_kit/df_interface/` — legacy compatibility shims for case-facing helpers during the cases migration
 - `dfode_kit/data_operations/` — dataset I/O, sampling, augmentation, labeling
 - `dfode_kit/dfode_core/` — model and training code
 - `canonical_cases/` — canonical flame case templates

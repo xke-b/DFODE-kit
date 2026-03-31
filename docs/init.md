@@ -36,8 +36,10 @@ Create or preview a parameterized copy of the canonical one-dimensional freely p
 
 This preset preserves the current hardcoded empirical logic from:
 
-- `dfode_kit/df_interface/flame_configurations.py`
+- `dfode_kit/cases/presets.py`
 - method: `OneDFreelyPropagatingFlameConfig.update_config()`
+
+Legacy `dfode_kit/df_interface/*` imports remain as compatibility shims during the package-topology migration.
 
 ## Stable intent
 

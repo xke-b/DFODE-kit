@@ -8,13 +8,13 @@ __all__ = [
 ]
 
 _ATTRIBUTE_MODULES = {
-    'df_to_h5': ('dfode_kit.df_interface.sample_case', 'df_to_h5'),
+    'df_to_h5': ('dfode_kit.cases.sampling', 'df_to_h5'),
     'OneDFreelyPropagatingFlameConfig': (
-        'dfode_kit.df_interface.flame_configurations',
+        'dfode_kit.cases.presets',
         'OneDFreelyPropagatingFlameConfig',
     ),
     'setup_one_d_flame_case': (
-        'dfode_kit.df_interface.oneDflame_setup',
+        'dfode_kit.cases.deepflame',
         'setup_one_d_flame_case',
     ),
 }
