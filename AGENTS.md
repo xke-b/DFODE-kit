@@ -45,3 +45,4 @@ This repository contains DFODE-kit, a Python toolkit for sampling combustion sta
 - `docs/agents/verification.md`
 - `docs/agents/worktrees.md`
 - `docs/agents/roadmap.md`
+- `docs/agents/package-topology-spec.md`

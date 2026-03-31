@@ -43,3 +43,5 @@ nav:
       - CLI Usability Plan: agents/cli-usability-plan.md
       - Data I/O Contract Plan: agents/data-io-contract-plan.md
       - Train Config Plan: agents/train-config-plan.md
+      - Package Topology Spec: agents/package-topology-spec.md
+      - Package Topology Migration Plan: agents/package-topology-migration-plan.md

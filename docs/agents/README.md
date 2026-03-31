@@ -14,6 +14,8 @@ Use this docs tree for information that is too detailed or too volatile for `AGE
 - `cli-usability-plan.md`: CLI agent-usability improvement plan
 - `data-io-contract-plan.md`: data I/O contract and refactor plan
 - `train-config-plan.md`: training/config refactor plan for experiment throughput
+- `package-topology-spec.md`: target package organization and module-boundary spec
+- `package-topology-migration-plan.md`: staged migration plan toward the target package topology
 
 ## Philosophy
 - `AGENTS.md` is the entrypoint for repository workflow.
