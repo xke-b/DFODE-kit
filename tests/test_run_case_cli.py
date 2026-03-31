@@ -1,7 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
-from dfode_kit.cli_tools.commands import run_case_helpers
+from dfode_kit.cli.commands import run_case_helpers
 
 
 class DummyArgs(SimpleNamespace):

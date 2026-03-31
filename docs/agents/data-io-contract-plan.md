@@ -6,7 +6,7 @@ Keep this branch focused on dataset layout and HDF5/NPY boundaries in `dfode_kit
 ## Audit summary
 - `dfode_kit/data_operations/h5_kit.py` currently mixes three concerns: HDF5 inspection/loading, reactor/model integration, and error reporting.
 - HDF5 layout assumptions are implicit: code assumes a root `mechanism` attribute and a `scalar_fields` group of stack-compatible datasets.
-- `dfode_kit/cli_tools/commands/h52npy.py` reimplements part of the HDF5 read path instead of sharing one validated loader.
+- `dfode_kit/cli/commands/h52npy.py` reimplements part of the HDF5 read path instead of sharing one validated loader.
 - Some runtime contracts still rely on loose assumptions or non-deterministic dataset iteration.
 
 ## First slice

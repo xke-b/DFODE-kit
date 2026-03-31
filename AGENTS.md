@@ -24,7 +24,7 @@ This repository contains DFODE-kit, a Python toolkit for sampling combustion sta
 - If adding a new invariant, encode it in tests or CI.
 
 ## Structure
-- `dfode_kit/cli_tools/`: CLI entrypoints and subcommands
+- `dfode_kit/cli/`: CLI entrypoints and subcommands
 - `dfode_kit/data_operations/`: dataset I/O, labeling, augmentation, integration utilities
 - `dfode_kit/dfode_core/`: models, training, preprocessing
 - `dfode_kit/df_interface/`: DeepFlame/OpenFOAM-facing helpers

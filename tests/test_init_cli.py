@@ -2,7 +2,7 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 import sys
 
-from dfode_kit.cli_tools.commands import init_helpers
+from dfode_kit.cli.commands import init_helpers
 
 
 class FakeCfg:
