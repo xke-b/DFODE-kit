@@ -187,6 +187,49 @@ The following papers provide scientific context for DFODE-kit and closely relate
 }
 ```
 
+### GPU/ANN-accelerated LES of swirling premixed flames
+
+```bibtex
+@article{zhang2024graphics,
+  title={Graphics processing unit/artificial neural network-accelerated large-eddy simulation of swirling premixed flames},
+  author={Zhang, Min and Mao, Runze and Li, Han and An, Zhenhua and Chen, Zhi X},
+  journal={Physics of Fluids},
+  volume={36},
+  number={5},
+  year={2024},
+  publisher={AIP Publishing}
+}
+```
+
+### Integrated GPU + machine learning acceleration framework
+
+```bibtex
+@article{mao2024integrated,
+  title={An integrated framework for accelerating reactive flow simulation using GPU and machine learning models},
+  author={Mao, Runze and Zhang, Min and Wang, Yingrui and Li, Han and Xu, Jiayang and Dong, Xinyu and Zhang, Yan and Chen, Zhi X},
+  journal={Proceedings of the Combustion Institute},
+  volume={40},
+  number={1-4},
+  pages={105512},
+  year={2024},
+  publisher={Elsevier}
+}
+```
+
+### DeepFlame platform paper
+
+```bibtex
+@article{mao2023deepflame,
+  title={DeepFlame: A deep learning empowered open-source platform for reacting flow simulations},
+  author={Mao, Runze and Lin, Minqi and Zhang, Yan and Zhang, Tianhan and Xu, Zhi-Qin John and Chen, Zhi X},
+  journal={Computer Physics Communications},
+  volume={291},
+  pages={108842},
+  year={2023},
+  publisher={Elsevier}
+}
+```
+
 ## Design principles in the current refactor
 
 Recent work in this repository focuses on making DFODE-kit:
