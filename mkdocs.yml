@@ -29,10 +29,12 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - CLI: cli.md
+  - Canonical Case Initialization: init.md
   - Architecture: architecture.md
   - Tutorials and Workflow: tutorials.md
   - Agent Docs:
       - Overview: agents/README.md
+      - Init CLI Spec: agents/init-cli-spec.md
       - Verification: agents/verification.md
       - Worktrees: agents/worktrees.md
       - Roadmap: agents/roadmap.md

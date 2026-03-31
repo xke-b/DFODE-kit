@@ -11,6 +11,7 @@ DFODE-kit is a Python toolkit for accelerating combustion chemistry integration 
 
 - **Getting Started**: environment setup and installation
 - **CLI**: current `dfode-kit` commands and their purpose
+- **Canonical Case Initialization**: preset-based case setup with preview/apply/config workflows
 - **Architecture**: repo layout and current refactor direction
 - **Tutorials and Workflow**: how to think about the DFODE pipeline
 - **Agent Docs**: operational guidance for coding agents and maintainers

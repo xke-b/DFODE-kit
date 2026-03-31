@@ -61,8 +61,8 @@ def create_0_species_files(cfg: OneDFreelyPropagatingFlameConfig, case_path):
     case_path = Path(case_path).resolve()
     orig_0_file_path = case_path / '0/Ydefault.orig'
     
-    for _, species in  enumerate(cfg.species_names):
-        new_0_file_path = f'0/{species}.orig'
+    for idx, species in enumerate(cfg.species_names):
+        new_0_file_path = case_path / '0' / f'{species}.orig'
         shutil.copy(orig_0_file_path, new_0_file_path)
 
         with open(new_0_file_path, 'r') as file:
@@ -72,7 +72,7 @@ def create_0_species_files(cfg: OneDFreelyPropagatingFlameConfig, case_path):
             if "Ydefault" in line:
                 lines[i] = line.replace("Ydefault", f'{species}')
             if "uniform 0" in line:
-                lines[i] = line.replace("0", f'{cfg.initial_gas.Y[_]}')
+                lines[i] = line.replace("0", f'{cfg.initial_gas.Y[idx]}')
         
         with open(new_0_file_path, 'w') as file:
             file.writelines(lines)

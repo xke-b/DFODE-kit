@@ -7,12 +7,17 @@ import types
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_INIT_PATH = ROOT / "dfode_kit" / "__init__.py"
 COMMAND_LOADER_PATH = ROOT / "dfode_kit" / "cli_tools" / "command_loader.py"
 MAIN_PATH = ROOT / "dfode_kit" / "cli_tools" / "main.py"
 
 
-dfode_pkg = sys.modules.setdefault("dfode_kit", types.ModuleType("dfode_kit"))
-dfode_pkg.__path__ = [str(ROOT / "dfode_kit")]
+package_spec = spec_from_file_location("dfode_kit", PACKAGE_INIT_PATH)
+dfode_pkg = module_from_spec(package_spec)
+assert package_spec.loader is not None
+sys.modules["dfode_kit"] = dfode_pkg
+package_spec.loader.exec_module(dfode_pkg)
+
 cli_pkg = sys.modules.setdefault("dfode_kit.cli_tools", types.ModuleType("dfode_kit.cli_tools"))
 cli_pkg.__path__ = [str(ROOT / "dfode_kit" / "cli_tools")]
 
@@ -43,6 +48,7 @@ class DummyCommand:
 def test_load_command_specs_are_sorted():
     specs = command_loader.load_command_specs()
     assert list(specs) == sorted(specs)
+    assert 'init' in specs
 
 
 def test_main_lists_commands_in_stable_order(monkeypatch, capsys):

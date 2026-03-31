@@ -5,6 +5,7 @@ This directory is the deeper documentation layer for coding agents.
 Use this docs tree for information that is too detailed or too volatile for `AGENTS.md`.
 
 ## Documents
+- `init-cli-spec.md`: canonical-case init CLI contract, presets, and JSON plan format
 - `verification.md`: required local/CI verification loop
 - `worktrees.md`: parallel branch + worktree workflow
 - `roadmap.md`: near-term harness and refactor priorities
