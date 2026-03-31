@@ -78,10 +78,12 @@ Example:
 
 ```bash
 dfode-kit augment \
+  --source /path/to/sample.h5 \
   --mech /path/to/gri30.yaml \
-  --h5_file /path/to/sample.h5 \
-  --output_file /path/to/augmented.npy \
-  --dataset_num 20000
+  --save /path/to/augmented.npy \
+  --preset random-local-combustion-v1 \
+  --target-size 20000 \
+  --apply
 ```
 
 ### `label`
@@ -131,6 +133,7 @@ Recent CLI refactors improved:
 
 The new `init` command already supports machine-readable JSON output for planning/provenance, and `run-case` supports JSON output for preview/apply results.
 
+For augmentation specifically, see [Data Augmentation](augment.md).
 For the end-to-end artifact flow between `sample`, `augment`, `label`, `h52npy`, and `train`, see [Data Preparation and Training Workflow](data-workflow.md).
 
 Future work should still add:

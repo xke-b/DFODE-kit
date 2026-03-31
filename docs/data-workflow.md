@@ -68,20 +68,30 @@ Example:
 
 ```bash
 dfode-kit augment \
+  --source /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
   --mech /path/to/gri30.yaml \
-  --h5_file /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
-  --output_file /path/to/data/ch4_phi1_aug.npy \
-  --dataset_num 20000
+  --save /path/to/data/ch4_phi1_aug.npy \
+  --preset random-local-combustion-v1 \
+  --target-size 20000 \
+  --apply
 ```
 
-Current optional controls:
-- `--heat_limit`
-- `--element_limit`
-- `--perturb_factor`
+Minimal public contract:
+- `--source`
+- `--mech`
+- `--save` (required for `--apply`)
+- `--preset`
+- `--target-size`
+- `--seed` (optional)
+- `--preview`
+- `--apply`
+- `--json`
+- `--write-config`
+- `--from-config`
 
 ## Current note on `augment`
 
-The current CLI surface exposes `--perturb_factor`, but the present command implementation does not yet thread that value through to the underlying augmentation routine. Treat the command as functional, but the public option surface here is not yet fully normalized.
+The augmentation CLI is intentionally preset-driven and keeps the public flag surface small. For more advanced tuning, use `--preview --write-config` and apply later with `--from-config`.
 
 ### 4. `label`
 Input:
@@ -148,8 +158,8 @@ This keeps:
 The CLI surface for the data pipeline is usable, but not yet as normalized as `init` and `run-case`.
 
 Current gaps include:
-- limited machine-readable JSON output for `sample`, `augment`, `label`, and `train`
-- older option naming conventions such as `--h5_file` and `--source_file`
+- limited machine-readable JSON output for `sample`, `label`, and `train`
+- older option naming conventions still present on some commands such as `--source_file`
 - thinner published documentation for training outputs and configuration detail than for case init/run
 
 These are good future cleanup targets, but the commands above describe the current behavior on `main`.

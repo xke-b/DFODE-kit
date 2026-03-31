@@ -33,8 +33,11 @@ def random_perturb(
     cq: float = 10,
     inert_idx: int = -1,
     time_step: float = 1e-6,
+    seed: int | None = None,
 ) -> np.ndarray:
     import cantera as ct
+
+    rng = np.random.default_rng(seed)
 
     array = array[array[:, 0] > frozenTem]
 
@@ -78,11 +81,11 @@ def random_perturb(
 
                 test_r = np.copy(array[j])
 
-                test_tmp[0] = test_r[0] + (maxT - minT) * (2 * np.random.rand() - 1.0) * alpha
-                test_tmp[1] = test_r[1] + (maxP - minP) * (2 * np.random.rand() - 1.0) * alpha * 20
-                test_tmp[-1] = test_r[-1] + (maxN2 - minN2) * (2 * np.random.rand() - 1) * alpha
+                test_tmp[0] = test_r[0] + (maxT - minT) * (2 * rng.random() - 1.0) * alpha
+                test_tmp[1] = test_r[1] + (maxP - minP) * (2 * rng.random() - 1.0) * alpha * 20
+                test_tmp[-1] = test_r[-1] + (maxN2 - minN2) * (2 * rng.random() - 1) * alpha
                 for i in range(2, array.shape[1] - 1):
-                    test_tmp[i] = np.abs(test_r[i]) ** (1 + (2 * np.random.rand() - 1) * alpha)
+                    test_tmp[i] = np.abs(test_r[i]) ** (1 + (2 * rng.random() - 1) * alpha)
                 test_tmp[2:-1] = test_tmp[2:-1] / np.sum(test_tmp[2:-1]) * (1 - test_tmp[-1])
 
                 if heat_limit:
@@ -133,7 +136,7 @@ def random_perturb(
         print(num)
 
     new_array = np.array(new_array)
-    new_array = new_array[np.random.choice(new_array.shape[0], size=dataset)]
+    new_array = new_array[rng.choice(new_array.shape[0], size=dataset)]
     unique_array = np.unique(new_array, axis=0)
     print(unique_array.shape)
     return unique_array
