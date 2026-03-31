@@ -61,6 +61,16 @@ dfode-kit run-case --case /path/to/case --preview --json
 ### `sample`
 Sample thermochemical states from canonical flame simulation outputs and save them to HDF5.
 
+Example:
+
+```bash
+dfode-kit sample \
+  --mech /path/to/gri30.yaml \
+  --case /path/to/case \
+  --save /path/to/output.h5 \
+  --include_mesh
+```
+
 ### `augment`
 Apply perturbation-based dataset augmentation to sampled states.
 
