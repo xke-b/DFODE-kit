@@ -74,14 +74,51 @@ dfode-kit sample \
 ### `augment`
 Apply perturbation-based dataset augmentation to sampled states.
 
+Example:
+
+```bash
+dfode-kit augment \
+  --mech /path/to/gri30.yaml \
+  --h5_file /path/to/sample.h5 \
+  --output_file /path/to/augmented.npy \
+  --dataset_num 20000
+```
+
 ### `label`
 Generate supervised learning targets using Cantera/CVODE time advancement.
+
+Example:
+
+```bash
+dfode-kit label \
+  --mech /path/to/gri30.yaml \
+  --time 1e-6 \
+  --source /path/to/augmented.npy \
+  --save /path/to/labeled.npy
+```
 
 ### `train`
 Train a neural-network surrogate for chemistry integration.
 
+Example:
+
+```bash
+dfode-kit train \
+  --mech /path/to/gri30.yaml \
+  --source_file /path/to/labeled.npy \
+  --output_path /path/to/model.pt
+```
+
 ### `h52npy`
 Convert HDF5 scalar-field datasets into a stacked NumPy array.
+
+Example:
+
+```bash
+dfode-kit h52npy \
+  --source /path/to/sample.h5 \
+  --save_to /path/to/sample.npy
+```
 
 ## Current design notes
 
@@ -92,7 +129,9 @@ Recent CLI refactors improved:
 - lazy command loading for lighter help paths,
 - more predictable command dispatch behavior.
 
-The new `init` command already supports machine-readable JSON output for planning/provenance.
+The new `init` command already supports machine-readable JSON output for planning/provenance, and `run-case` supports JSON output for preview/apply results.
+
+For the end-to-end artifact flow between `sample`, `augment`, `label`, `h52npy`, and `train`, see [Data Preparation and Training Workflow](data-workflow.md).
 
 Future work should still add:
 

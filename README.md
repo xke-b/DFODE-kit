@@ -120,12 +120,39 @@ python -m dfode_kit.cli.main sample \
   --include_mesh
 ```
 
+### 5. Continue to data preparation and training
+
+Typical next steps are:
+
+```bash
+python -m dfode_kit.cli.main augment \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
+  --h5_file /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
+  --output_file /path/to/data/ch4_phi1_aug.npy \
+  --dataset_num 20000
+
+python -m dfode_kit.cli.main label \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
+  --time 1e-6 \
+  --source /path/to/data/ch4_phi1_aug.npy \
+  --save /path/to/data/ch4_phi1_labeled.npy
+
+python -m dfode_kit.cli.main train \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
+  --source_file /path/to/data/ch4_phi1_labeled.npy \
+  --output_path /path/to/models/ch4_phi1_model.pt
+```
+
+See the published data workflow guide for the expected artifacts and stage boundaries:
+- https://deepflame-ai.github.io/DFODE-kit/data-workflow/
+
 ## Recommended documentation entry points
 
 If you are using the CLI, start with:
 - https://deepflame-ai.github.io/DFODE-kit/cli/
 - https://deepflame-ai.github.io/DFODE-kit/init/
 - https://deepflame-ai.github.io/DFODE-kit/run-case/
+- https://deepflame-ai.github.io/DFODE-kit/data-workflow/
 
 If you are working on the repository itself, see:
 - `AGENTS.md`
@@ -135,8 +162,7 @@ If you are working on the repository itself, see:
 
 - `dfode_kit/cli/` — CLI entrypoints and subcommands
 - `dfode_kit/cases/` — case init, presets, sampling, and DeepFlame/OpenFOAM-facing helpers
-- `dfode_kit/data/` — data contracts, HDF5 I/O, and integration helpers
-- `dfode_kit/data_operations/` — augmentation and labeling workflows
+- `dfode_kit/data/` — data contracts, HDF5 I/O, integration, augmentation, and labeling helpers
 - `dfode_kit/models/` — model architectures and registries
 - `dfode_kit/training/` — training configuration, registries, training loops, and preprocessing
 - `canonical_cases/` — canonical flame case templates
