@@ -31,7 +31,7 @@ def add_command_parser(subparsers):
 
 
 def handle_command(args):
-    from dfode_kit.runtime_config import (
+    from dfode_kit.runtime.config import (
         describe_config_schema,
         get_config_path,
         load_runtime_config,

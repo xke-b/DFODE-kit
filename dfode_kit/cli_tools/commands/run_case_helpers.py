@@ -1,3 +1,3 @@
-"""Compatibility shim for :mod:`dfode_kit.cli.commands.run_case_helpers`."""
+"""Compatibility shim for :mod:`dfode_kit.runtime.run_case`."""
 
-from dfode_kit.cli.commands.run_case_helpers import *  # noqa: F401,F403
+from dfode_kit.runtime.run_case import *  # noqa: F401,F403

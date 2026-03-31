@@ -58,7 +58,7 @@ def add_command_parser(subparsers):
 
 
 def handle_command(args):
-    from dfode_kit.cli.commands.run_case_helpers import execute_run_case, resolve_run_case_plan
+    from dfode_kit.runtime.run_case import execute_run_case, resolve_run_case_plan
 
     if not args.preview and not args.apply:
         raise ValueError('Specify at least one action: --preview or --apply.')

@@ -1,7 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 
-from dfode_kit.cli.commands import run_case_helpers
+from dfode_kit.runtime import run_case as run_case_helpers
 
 
 class DummyArgs(SimpleNamespace):
@@ -84,3 +84,11 @@ def test_execute_run_case_json_mode_writes_logs(monkeypatch, tmp_path):
     assert Path(result['stdout_log']).is_file()
     assert Path(result['stderr_log']).is_file()
     assert calls['command'] == ['bash', '-lc', 'echo hello']
+
+
+
+def test_legacy_run_case_helpers_shim_matches_new_module():
+    from dfode_kit.cli_tools.commands import run_case_helpers as legacy_run_case_helpers
+
+    assert legacy_run_case_helpers.resolve_run_case_plan is run_case_helpers.resolve_run_case_plan
+    assert legacy_run_case_helpers.execute_run_case is run_case_helpers.execute_run_case
