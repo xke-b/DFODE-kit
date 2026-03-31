@@ -31,7 +31,7 @@ def add_command_parser(subparsers):
 
 def handle_command(args):
     from dfode_kit.data.io_hdf5 import touch_h5
-    from dfode_kit.df_interface.sample_case import df_to_h5
+    from dfode_kit.cases.sampling import df_to_h5
 
     print('Handling sample command')
     df_to_h5(args.case, args.mech, args.save, include_mesh=args.include_mesh)

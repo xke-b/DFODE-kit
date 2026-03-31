@@ -10,6 +10,12 @@ __all__ = [
     "require_h5_group",
     "touch_h5",
     "get_TPY_from_h5",
+    "advance_reactor",
+    "load_model",
+    "predict_Y",
+    "nn_integrate",
+    "integrate_h5",
+    "calculate_error",
 ]
 
 _ATTRIBUTE_MODULES = {
@@ -21,6 +27,12 @@ _ATTRIBUTE_MODULES = {
     "require_h5_group": ("dfode_kit.data.contracts", "require_h5_group"),
     "touch_h5": ("dfode_kit.data.io_hdf5", "touch_h5"),
     "get_TPY_from_h5": ("dfode_kit.data.io_hdf5", "get_TPY_from_h5"),
+    "advance_reactor": ("dfode_kit.data.integration", "advance_reactor"),
+    "load_model": ("dfode_kit.data.integration", "load_model"),
+    "predict_Y": ("dfode_kit.data.integration", "predict_Y"),
+    "nn_integrate": ("dfode_kit.data.integration", "nn_integrate"),
+    "integrate_h5": ("dfode_kit.data.integration", "integrate_h5"),
+    "calculate_error": ("dfode_kit.data.integration", "calculate_error"),
 }
 
 

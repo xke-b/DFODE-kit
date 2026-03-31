@@ -34,11 +34,11 @@ _ATTRIBUTE_MODULES = {
     "df_to_h5": ("dfode_kit.cases.sampling", "df_to_h5"),
     "touch_h5": ("dfode_kit.data.io_hdf5", "touch_h5"),
     "get_TPY_from_h5": ("dfode_kit.data.io_hdf5", "get_TPY_from_h5"),
-    "advance_reactor": ("dfode_kit.data_operations.h5_kit", "advance_reactor"),
-    "load_model": ("dfode_kit.data_operations.h5_kit", "load_model"),
-    "predict_Y": ("dfode_kit.data_operations.h5_kit", "predict_Y"),
-    "nn_integrate": ("dfode_kit.data_operations.h5_kit", "nn_integrate"),
-    "integrate_h5": ("dfode_kit.data_operations.h5_kit", "integrate_h5"),
+    "advance_reactor": ("dfode_kit.data.integration", "advance_reactor"),
+    "load_model": ("dfode_kit.data.integration", "load_model"),
+    "predict_Y": ("dfode_kit.data.integration", "predict_Y"),
+    "nn_integrate": ("dfode_kit.data.integration", "nn_integrate"),
+    "integrate_h5": ("dfode_kit.data.integration", "integrate_h5"),
 }
 
 

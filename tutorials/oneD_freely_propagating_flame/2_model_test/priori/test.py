@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import cantera as ct
 
 from dfode_kit import DFODE_ROOT
-from dfode_kit.data_operations import integrate_h5, touch_h5, calculate_error
+from dfode_kit.data import integrate_h5, touch_h5, calculate_error
 from dfode_kit.models.mlp import MLP
 
 mech_path = f'{DFODE_ROOT}/mechanisms/Burke2012_s9r23.yaml'
