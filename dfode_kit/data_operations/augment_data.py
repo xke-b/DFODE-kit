@@ -1,7 +1,7 @@
 import numpy as np
 import cantera as ct
 import time
-from dfode_kit.data_operations.h5_kit import advance_reactor
+from dfode_kit.data.integration import advance_reactor
 from dfode_kit.training.formation import formation_calculate
 
 def single_step(npstate, chem, time_step=1e-6):
