@@ -30,6 +30,7 @@ nav:
   - Getting Started: getting-started.md
   - CLI: cli.md
   - Canonical Case Initialization: init.md
+  - Runtime Configuration and Case Execution: run-case.md
   - Architecture: architecture.md
   - Tutorials and Workflow: tutorials.md
   - Shared Operational Docs:

@@ -8,7 +8,9 @@ dfode-kit --help
 
 Available commands:
 
+- `config`
 - `init`
+- `run-case`
 - `sample`
 - `augment`
 - `label`
@@ -22,6 +24,15 @@ dfode-kit --list-commands
 ```
 
 ## Command overview
+
+### `config`
+Store and inspect machine-local runtime configuration such as OpenFOAM, Conda, and DeepFlame activation paths.
+
+Example:
+
+```bash
+dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
+```
 
 ### `init`
 Initialize canonical cases from explicit presets. The current supported case is `oneD-flame`, which preserves the current DFODE-kit empirical setup logic while making it previewable, overrideable, and serializable to JSON.
@@ -38,8 +49,27 @@ dfode-kit init oneD-flame \
   --preview --json
 ```
 
+### `run-case`
+Run a case-local runner such as `Allrun` using the stored runtime configuration from `dfode-kit config`.
+
+Example:
+
+```bash
+dfode-kit run-case --case /path/to/case --preview --json
+```
+
 ### `sample`
 Sample thermochemical states from canonical flame simulation outputs and save them to HDF5.
+
+Example:
+
+```bash
+dfode-kit sample \
+  --mech /path/to/gri30.yaml \
+  --case /path/to/case \
+  --save /path/to/output.h5 \
+  --include_mesh
+```
 
 ### `augment`
 Apply perturbation-based dataset augmentation to sampled states.

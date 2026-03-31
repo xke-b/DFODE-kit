@@ -35,24 +35,48 @@ dfode-kit CMD ARGS
 
 
 ### Commands Available:
+- `config`: Store machine-local runtime paths such as OpenFOAM, Conda, and DeepFlame activation scripts.
 - `init`: Initialize canonical cases from explicit presets.
+- `run-case`: Execute a case-local runner such as `Allrun` using stored runtime configuration.
 - `sample`: Perform raw data sampling from canonical flame simulations.
 - `augment`: Apply random noise and physical constraints to improve the training dataset.
 - `label`: Generate supervised learning labels using Cantera's CVODE solver.
 - `train`: Train neural network models based on the specified datasets and parameters.
 
-For example, preview a parameterized 1D premixed flame case:
+For example, a validated end-to-end 1D flame workflow is:
 
 ```bash
-dfode-kit init oneD-flame \
-  --mech /path/to/gri30.yaml \
+# one-time machine-local runtime config
+dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
+dfode-kit config set conda_sh /home/xk/miniconda3/etc/profile.d/conda.sh
+dfode-kit config set conda_env_name deepflame
+dfode-kit config set deepflame_bashrc /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+
+# init case from a DeepFlame-compatible Python env
+source /opt/openfoam7/etc/bashrc
+source /home/xk/miniconda3/etc/profile.d/conda.sh
+conda activate deepflame
+source /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+python -m dfode_kit.cli_tools.main init oneD-flame \
+  --mech /home/xk/deepflame/df_1be82b6/deepflame-dev/mechanisms/CH4/gri30.yaml \
   --fuel CH4:1 \
   --oxidizer air \
   --phi 1.0 \
-  --out /tmp/ch4_phi1_case \
-  --preview --json
-```
+  --out /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --apply --force
 
+# run case
+python -m dfode_kit.cli_tools.main run-case \
+  --case /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --apply --json
+
+# sample case
+python -m dfode_kit.cli_tools.main sample \
+  --mech /home/xk/deepflame/df_1be82b6/deepflame-dev/mechanisms/CH4/gri30.yaml \
+  --case /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --save /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli/ch4_phi1_sample.h5 \
+  --include_mesh
+```
 
 Comprehensive tutorials are provided in the `tutorials/` directory, including step-by-step guides for 1D premixed flames and 2D HIT flames.
 

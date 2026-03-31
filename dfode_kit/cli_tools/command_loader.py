@@ -15,9 +15,17 @@ _COMMAND_SPECS = {
         'module': 'dfode_kit.cli_tools.commands.init',
         'help': 'Initialize canonical cases from explicit presets.',
     },
+    'config': {
+        'module': 'dfode_kit.cli_tools.commands.config',
+        'help': 'Manage persistent runtime configuration.',
+    },
     'label': {
         'module': 'dfode_kit.cli_tools.commands.label',
         'help': 'Label data.',
+    },
+    'run-case': {
+        'module': 'dfode_kit.cli_tools.commands.run_case',
+        'help': 'Run a DeepFlame/OpenFOAM case using stored configuration.',
     },
     'sample': {
         'module': 'dfode_kit.cli_tools.commands.sample',

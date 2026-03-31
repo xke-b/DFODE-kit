@@ -78,6 +78,19 @@ The command is a **preset instantiator**, not a claim of universal best practice
 O2:1, N2:3.76
 ```
 
+## Environment note
+
+The `oneD-flame` init command computes flame properties through Cantera. In practice, run it from a Python environment that has Cantera available.
+
+In this environment, the validated choice was:
+
+```bash
+source /opt/openfoam7/etc/bashrc
+source /home/xk/miniconda3/etc/profile.d/conda.sh
+conda activate deepflame
+source /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+```
+
 ## Core workflow
 
 ### Preview a plan
@@ -115,6 +128,12 @@ dfode-kit init oneD-flame \
   --phi 1.0 \
   --out /tmp/ch4_phi1_case \
   --apply
+```
+
+If the output directory already exists, add:
+
+```bash
+--force
 ```
 
 ### Apply from a saved config

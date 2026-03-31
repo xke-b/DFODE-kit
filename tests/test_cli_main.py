@@ -48,7 +48,9 @@ class DummyCommand:
 def test_load_command_specs_are_sorted():
     specs = command_loader.load_command_specs()
     assert list(specs) == sorted(specs)
+    assert 'config' in specs
     assert 'init' in specs
+    assert 'run-case' in specs
 
 
 def test_main_lists_commands_in_stable_order(monkeypatch, capsys):
