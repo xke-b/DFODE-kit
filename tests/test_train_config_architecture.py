@@ -1,3 +1,4 @@
+from importlib import import_module
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 import sys
@@ -6,9 +7,9 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONFIG_PATH = ROOT / "dfode_kit" / "dfode_core" / "train" / "config.py"
-MODEL_REGISTRY_PATH = ROOT / "dfode_kit" / "dfode_core" / "model" / "registry.py"
-TRAINER_REGISTRY_PATH = ROOT / "dfode_kit" / "dfode_core" / "train" / "registry.py"
+CONFIG_PATH = ROOT / "dfode_kit" / "training" / "config.py"
+MODEL_REGISTRY_PATH = ROOT / "dfode_kit" / "models" / "registry.py"
+TRAINER_REGISTRY_PATH = ROOT / "dfode_kit" / "training" / "registry.py"
 PLAN_PATH = ROOT / "docs" / "agents" / "train-config-plan.md"
 
 
@@ -80,8 +81,23 @@ def test_registry_errors_include_available_names():
     assert "Unknown model 'does_not_exist'" in str(excinfo.value)
 
 
+def test_legacy_dfode_core_imports_remain_available_as_shims():
+    canonical_config = import_module("dfode_kit.training.config")
+    canonical_model_registry = import_module("dfode_kit.models.registry")
+    canonical_trainer_registry = import_module("dfode_kit.training.registry")
+    legacy_config = import_module("dfode_kit.dfode_core.train.config")
+    legacy_model_registry = import_module("dfode_kit.dfode_core.model.registry")
+    legacy_trainer_registry = import_module("dfode_kit.dfode_core.train.registry")
+
+    assert legacy_config.TrainingConfig is canonical_config.TrainingConfig
+    assert legacy_model_registry.register_model is canonical_model_registry.register_model
+    assert legacy_trainer_registry.register_trainer is canonical_trainer_registry.register_trainer
+
+
 def test_training_plan_doc_exists_and_mentions_registry_design():
     content = PLAN_PATH.read_text()
     assert "Model registry" in content
     assert "Typed training config" in content
     assert "First implementation slice" in content
+    assert "dfode_kit/models" in content
+    assert "dfode_kit/training" in content

@@ -1,4 +1,4 @@
-"""Compatibility shims for :mod:`dfode_kit.models`."""
+"""Model architectures and registry helpers."""
 
 from importlib import import_module
 
@@ -24,7 +24,7 @@ _ATTRIBUTE_MODULES = {
 
 def __getattr__(name):
     if name not in _ATTRIBUTE_MODULES:
-        raise AttributeError(f"module 'dfode_kit.dfode_core.model' has no attribute '{name}'")
+        raise AttributeError(f"module 'dfode_kit.models' has no attribute '{name}'")
 
     module_name, attribute_name = _ATTRIBUTE_MODULES[name]
     module = import_module(module_name)

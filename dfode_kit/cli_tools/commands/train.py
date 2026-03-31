@@ -21,7 +21,7 @@ def add_command_parser(subparsers):
 
 
 def handle_command(args):
-    from dfode_kit.dfode_core.train.train import train
+    from dfode_kit.training.train import train
 
     print('Handling train command')
     train(args.mech, args.source_file, args.output_path)

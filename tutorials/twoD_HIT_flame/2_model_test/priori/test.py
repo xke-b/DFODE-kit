@@ -5,8 +5,7 @@ import cantera as ct
 
 from dfode_kit import DFODE_ROOT
 from dfode_kit.data_operations import integrate_h5, touch_h5, calculate_error
-# from dfode_kit.dfode_core.test.test import test_npy
-from dfode_kit.dfode_core.model.mlp import MLP
+from dfode_kit.models.mlp import MLP
 
 mech_path = f'{DFODE_ROOT}/mechanisms/Burke2012_s9r23.yaml'
 gas = ct.Solution(mech_path)
