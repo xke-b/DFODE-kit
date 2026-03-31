@@ -142,6 +142,51 @@ If you are working on the repository itself, see:
 - `docs/` — published project documentation
 - `tests/` — lightweight verification tests
 
+## Related papers
+
+The following papers provide scientific context for DFODE-kit and closely related workflows:
+
+### DFODE-kit package paper
+
+```bibtex
+@article{li2025dfode,
+  title={DFODE-kit: Deep learning package for solving Flame chemical kinetics with high-dimensional stiff Ordinary Differential Equations},
+  author={Li, Han and Xiao, Ke and Xu, Yangchen and Zhang, Haoze and Chen, Zhenyi and Mao, Runze and Chen, Zhi X},
+  journal={Computer Physics Communications},
+  pages={110013},
+  year={2025},
+  publisher={Elsevier}
+}
+```
+
+### Multi-fuel generalization and a posteriori validation
+
+```bibtex
+@article{li2025comprehensive,
+  title={Comprehensive deep learning for combustion chemistry integration: Multi-fuel generalization and a posteriori validation in reacting flow},
+  author={Li, Han and Yang, Ruixin and Xu, Yangchen and Zhang, Min and Mao, Runze and Chen, Zhi X},
+  journal={Physics of Fluids},
+  volume={37},
+  number={1},
+  year={2025},
+  publisher={AIP Publishing}
+}
+```
+
+### Physics-aware data augmentation and scale separation
+
+```bibtex
+@article{xiao2026enhancing,
+  title={Enhancing deep learning of ammonia/natural gas combustion kinetics via physics-aware data augmentation and scale separation},
+  author={Xiao, Ke and Xu, Yangchen and Li, Han and Chen, Zhi X},
+  journal={Fuel},
+  volume={419},
+  pages={138904},
+  year={2026},
+  publisher={Elsevier}
+}
+```
+
 ## Design principles in the current refactor
 
 Recent work in this repository focuses on making DFODE-kit:
