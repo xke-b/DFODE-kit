@@ -39,6 +39,36 @@ uv venv .venv
 uv pip install --python .venv/bin/python -e '.[dev]'
 ```
 
+## CLI entrypoint
+
+If the console script is installed, use:
+
+```bash
+dfode-kit --help
+```
+
+A reliable fallback inside the repository is:
+
+```bash
+.venv/bin/python -m dfode_kit.cli.main --help
+```
+
+## Runtime environment split
+
+Different stages of the workflow may require different dependencies:
+
+- lightweight repository verification: local `.venv`
+- canonical case initialization: Python environment with `cantera`
+- case execution: configured OpenFOAM + Conda + DeepFlame runtime via `dfode-kit config` and `dfode-kit run-case`
+- sampling / labeling: Python environment with `cantera`, `numpy`, and `h5py`
+
+If you are starting with the case workflow, continue to:
+
+1. [CLI](cli.md)
+2. [Canonical Case Initialization](init.md)
+3. [Runtime Configuration and Case Execution](run-case.md)
+4. [Data Preparation and Training Workflow](data-workflow.md)
+
 ## Current focus
 
 The project is being refactored toward:
