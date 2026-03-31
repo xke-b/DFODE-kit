@@ -1,5 +1,4 @@
 import h5py
-import torch
 import numpy as np
 import cantera as ct
 
@@ -28,8 +27,9 @@ def advance_reactor(gas, state, reactor, reactor_net, time_step):
     return gas
 
 
-@torch.no_grad()
 def load_model(model_path, device, model_class, model_layers):
+    import torch
+
     state_dict = torch.load(model_path, map_location='cpu')
 
     model = model_class(model_layers)
@@ -41,8 +41,9 @@ def load_model(model_path, device, model_class, model_layers):
     return model
 
 
-@torch.no_grad()
 def predict_Y(model, model_path, d_arr, mech, device):
+    import torch
+
     gas = ct.Solution(mech)
     n_species = gas.n_species
     expected_dims = 2 + n_species
@@ -79,7 +80,6 @@ def predict_Y(model, model_path, d_arr, mech, device):
     return next_Y
 
 
-@torch.no_grad()
 def nn_integrate(orig_arr, model_path, device, model_class, model_layers, time_step, mech, frozen_temperature=510):
     model = load_model(model_path, device, model_class, model_layers)
 

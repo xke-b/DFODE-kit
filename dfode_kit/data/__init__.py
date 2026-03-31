@@ -16,6 +16,8 @@ __all__ = [
     "nn_integrate",
     "integrate_h5",
     "calculate_error",
+    "random_perturb",
+    "label_npy",
 ]
 
 _ATTRIBUTE_MODULES = {
@@ -33,6 +35,8 @@ _ATTRIBUTE_MODULES = {
     "nn_integrate": ("dfode_kit.data.integration", "nn_integrate"),
     "integrate_h5": ("dfode_kit.data.integration", "integrate_h5"),
     "calculate_error": ("dfode_kit.data.integration", "calculate_error"),
+    "random_perturb": ("dfode_kit.data.augment", "random_perturb"),
+    "label_npy": ("dfode_kit.data.label", "label_npy"),
 }
 
 
