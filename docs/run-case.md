@@ -206,7 +206,7 @@ source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
 source /path/to/deepflame-dev/bashrc
 
-python -m dfode_kit.cli_tools.main init oneD-flame \
+python -m dfode_kit.cli.main init oneD-flame \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
   --fuel CH4:1 \
   --oxidizer air \
@@ -228,7 +228,7 @@ dfode-kit run-case \
 ```bash
 source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
-python -m dfode_kit.cli_tools.main sample \
+python -m dfode_kit.cli.main sample \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
   --case /path/to/run/oneD_flame_CH4_phi1 \
   --save /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
