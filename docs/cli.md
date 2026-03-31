@@ -8,7 +8,9 @@ dfode-kit --help
 
 Available commands:
 
+- `config`
 - `init`
+- `run-case`
 - `sample`
 - `augment`
 - `label`
@@ -23,6 +25,15 @@ dfode-kit --list-commands
 
 ## Command overview
 
+### `config`
+Store and inspect machine-local runtime configuration such as OpenFOAM, Conda, and DeepFlame activation paths.
+
+Example:
+
+```bash
+dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
+```
+
 ### `init`
 Initialize canonical cases from explicit presets. The current supported case is `oneD-flame`, which preserves the current DFODE-kit empirical setup logic while making it previewable, overrideable, and serializable to JSON.
 
@@ -36,6 +47,15 @@ dfode-kit init oneD-flame \
   --phi 1.0 \
   --out /tmp/ch4_phi1_case \
   --preview --json
+```
+
+### `run-case`
+Run a case-local runner such as `Allrun` using the stored runtime configuration from `dfode-kit config`.
+
+Example:
+
+```bash
+dfode-kit run-case --case /path/to/case --preview --json
 ```
 
 ### `sample`

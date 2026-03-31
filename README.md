@@ -35,7 +35,9 @@ dfode-kit CMD ARGS
 
 
 ### Commands Available:
+- `config`: Store machine-local runtime paths such as OpenFOAM, Conda, and DeepFlame activation scripts.
 - `init`: Initialize canonical cases from explicit presets.
+- `run-case`: Execute a case-local runner such as `Allrun` using stored runtime configuration.
 - `sample`: Perform raw data sampling from canonical flame simulations.
 - `augment`: Apply random noise and physical constraints to improve the training dataset.
 - `label`: Generate supervised learning labels using Cantera's CVODE solver.
