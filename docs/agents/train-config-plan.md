@@ -1,7 +1,7 @@
 # Training/config refactor plan
 
 ## Scope
-Keep changes tightly limited to the model/training package boundary (`dfode_kit/models`, `dfode_kit/training`, plus compatibility shims under `dfode_kit/dfode_core/{model,train}`) and the train CLI surface needed to select registered components. Do not redesign data loading, labeling, or DeepFlame integration in this slice.
+Keep changes tightly limited to the canonical model/training package boundary (`dfode_kit/models`, `dfode_kit/training`) and the train CLI surface needed to select registered components. Do not redesign data loading, labeling, or DeepFlame integration in this slice.
 
 ## Current audit
 - `dfode_kit/training/train.py` hard-codes:

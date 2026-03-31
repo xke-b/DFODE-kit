@@ -14,6 +14,7 @@ __all__ = [
     "get_trainer_factory",
     "register_trainer",
     "registered_trainers",
+    "DataPreprocessor",
     "train",
 ]
 
@@ -28,6 +29,7 @@ _ATTRIBUTE_MODULES = {
     "get_trainer_factory": ("dfode_kit.training.registry", "get_trainer_factory"),
     "register_trainer": ("dfode_kit.training.registry", "register_trainer"),
     "registered_trainers": ("dfode_kit.training.registry", "registered_trainers"),
+    "DataPreprocessor": ("dfode_kit.training.preprocess", "DataPreprocessor"),
     "train": ("dfode_kit.training.train", "train"),
 }
 
