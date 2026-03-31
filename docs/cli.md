@@ -8,6 +8,7 @@ dfode-kit --help
 
 Available commands:
 
+- `init`
 - `sample`
 - `augment`
 - `label`
@@ -21,6 +22,21 @@ dfode-kit --list-commands
 ```
 
 ## Command overview
+
+### `init`
+Initialize canonical cases from explicit presets. The current supported case is `oneD-flame`, which preserves the current DFODE-kit empirical setup logic while making it previewable, overrideable, and serializable to JSON.
+
+Example:
+
+```bash
+dfode-kit init oneD-flame \
+  --mech /path/to/gri30.yaml \
+  --fuel CH4:1 \
+  --oxidizer air \
+  --phi 1.0 \
+  --out /tmp/ch4_phi1_case \
+  --preview --json
+```
 
 ### `sample`
 Sample thermochemical states from canonical flame simulation outputs and save them to HDF5.
@@ -46,8 +62,10 @@ Recent CLI refactors improved:
 - lazy command loading for lighter help paths,
 - more predictable command dispatch behavior.
 
-Future work should add:
+The new `init` command already supports machine-readable JSON output for planning/provenance.
 
-- machine-readable JSON output,
+Future work should still add:
+
+- broader machine-readable JSON output across all commands,
 - standardized stderr/stdout behavior,
 - command-level error normalization.

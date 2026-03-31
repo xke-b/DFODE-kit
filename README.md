@@ -35,10 +35,23 @@ dfode-kit CMD ARGS
 
 
 ### Commands Available:
+- `init`: Initialize canonical cases from explicit presets.
 - `sample`: Perform raw data sampling from canonical flame simulations.
 - `augment`: Apply random noise and physical constraints to improve the training dataset.
 - `label`: Generate supervised learning labels using Cantera's CVODE solver.
 - `train`: Train neural network models based on the specified datasets and parameters.
+
+For example, preview a parameterized 1D premixed flame case:
+
+```bash
+dfode-kit init oneD-flame \
+  --mech /path/to/gri30.yaml \
+  --fuel CH4:1 \
+  --oxidizer air \
+  --phi 1.0 \
+  --out /tmp/ch4_phi1_case \
+  --preview --json
+```
 
 
 Comprehensive tutorials are provided in the `tutorials/` directory, including step-by-step guides for 1D premixed flames and 2D HIT flames.

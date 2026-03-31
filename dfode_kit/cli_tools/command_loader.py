@@ -11,6 +11,10 @@ _COMMAND_SPECS = {
         'module': 'dfode_kit.cli_tools.commands.h52npy',
         'help': 'Convert HDF5 scalar fields to NumPy array.',
     },
+    'init': {
+        'module': 'dfode_kit.cli_tools.commands.init',
+        'help': 'Initialize canonical cases from explicit presets.',
+    },
     'label': {
         'module': 'dfode_kit.cli_tools.commands.label',
         'help': 'Label data.',

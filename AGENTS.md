@@ -40,6 +40,7 @@ This repository contains DFODE-kit, a Python toolkit for sampling combustion sta
 
 ## Read next
 - `docs/agents/README.md`
+- `docs/init.md`
 - `docs/agents/verification.md`
 - `docs/agents/worktrees.md`
 - `docs/agents/roadmap.md`
