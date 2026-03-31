@@ -53,13 +53,13 @@ dfode-kit config schema
 ### Set values
 
 ```bash
-dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
-dfode-kit config set conda_sh /home/xk/miniconda3/etc/profile.d/conda.sh
+dfode-kit config set openfoam_bashrc /path/to/openfoam/etc/bashrc
+dfode-kit config set conda_sh /path/to/conda/etc/profile.d/conda.sh
 dfode-kit config set conda_env_name deepflame
-dfode-kit config set deepflame_bashrc /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+dfode-kit config set deepflame_bashrc /path/to/deepflame-dev/bashrc
 ```
 
-These are the exact values validated in this environment.
+Use paths appropriate for your local installation.
 
 ### Show current config
 
@@ -115,10 +115,10 @@ dfode-kit run-case \
 dfode-kit run-case \
   --case /path/to/case \
   --apply \
-  --openfoam-bashrc /opt/openfoam7/etc/bashrc \
-  --conda-sh /home/xk/miniconda3/etc/profile.d/conda.sh \
+  --openfoam-bashrc /path/to/openfoam/etc/bashrc \
+  --conda-sh /path/to/conda/etc/profile.d/conda.sh \
   --conda-env deepflame \
-  --deepflame-bashrc /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+  --deepflame-bashrc /path/to/deepflame-dev/bashrc
 ```
 
 ## Current execution contract
@@ -187,31 +187,31 @@ At least one of the following must be specified:
 5. Sample the finished case with `dfode-kit sample`
 6. Use per-command overrides only when machine-local config differs from the default workstation setup
 
-## Validated example: CH4 / air / phi=1 in this environment
+## Example: CH4 / air / phi=1 workflow
 
 ### 1. Store runtime config
 
 ```bash
-dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
-dfode-kit config set conda_sh /home/xk/miniconda3/etc/profile.d/conda.sh
+dfode-kit config set openfoam_bashrc /path/to/openfoam/etc/bashrc
+dfode-kit config set conda_sh /path/to/conda/etc/profile.d/conda.sh
 dfode-kit config set conda_env_name deepflame
-dfode-kit config set deepflame_bashrc /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+dfode-kit config set deepflame_bashrc /path/to/deepflame-dev/bashrc
 ```
 
 ### 2. Initialize the case
 
 ```bash
-source /opt/openfoam7/etc/bashrc
-source /home/xk/miniconda3/etc/profile.d/conda.sh
+source /path/to/openfoam/etc/bashrc
+source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
-source /home/xk/deepflame/df_1be82b6/deepflame-dev/bashrc
+source /path/to/deepflame-dev/bashrc
 
 python -m dfode_kit.cli_tools.main init oneD-flame \
-  --mech /home/xk/deepflame/df_1be82b6/deepflame-dev/mechanisms/CH4/gri30.yaml \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
   --fuel CH4:1 \
   --oxidizer air \
   --phi 1.0 \
-  --out /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --out /path/to/run/oneD_flame_CH4_phi1 \
   --apply --force
 ```
 
@@ -219,18 +219,18 @@ python -m dfode_kit.cli_tools.main init oneD-flame \
 
 ```bash
 dfode-kit run-case \
-  --case /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
+  --case /path/to/run/oneD_flame_CH4_phi1 \
   --apply --json
 ```
 
 ### 4. Sample the finished case
 
 ```bash
-source /home/xk/miniconda3/etc/profile.d/conda.sh
+source /path/to/conda/etc/profile.d/conda.sh
 conda activate deepflame
 python -m dfode_kit.cli_tools.main sample \
-  --mech /home/xk/deepflame/df_1be82b6/deepflame-dev/mechanisms/CH4/gri30.yaml \
-  --case /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli \
-  --save /home/xk/deepflame_runs/oneD_flame_CH4_phi1_cli/ch4_phi1_sample.h5 \
+  --mech /path/to/mechanisms/CH4/gri30.yaml \
+  --case /path/to/run/oneD_flame_CH4_phi1 \
+  --save /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
   --include_mesh
 ```

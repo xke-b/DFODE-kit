@@ -37,6 +37,7 @@ This repository contains DFODE-kit, a Python toolkit for sampling combustion sta
 - Prefer explicit exceptions over bare asserts for runtime validation changes.
 - Keep stdout clean for result output; use logs/errors sparingly.
 - Do not mix unrelated refactors in the same branch.
+- Do not commit machine-specific local paths to published docs, README examples, or user-facing command snippets. Use portable placeholders like `/path/to/...`, `${VAR}`, or `<worktree-root>` instead.
 
 ## Read next
 - `docs/agents/README.md`

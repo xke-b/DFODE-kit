@@ -31,7 +31,7 @@ Store and inspect machine-local runtime configuration such as OpenFOAM, Conda, a
 Example:
 
 ```bash
-dfode-kit config set openfoam_bashrc /opt/openfoam7/etc/bashrc
+dfode-kit config set openfoam_bashrc /path/to/openfoam/etc/bashrc
 ```
 
 ### `init`
