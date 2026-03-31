@@ -41,12 +41,9 @@ def test_get_tpy_from_h5_uses_contract_ordering_and_stacks_datasets(tmp_path, ca
     assert f"Number of datasets in {SCALAR_FIELDS_GROUP} group: 3" in capsys.readouterr().out
 
 
-def test_legacy_package_exports_point_to_extracted_io_helpers():
-    legacy_data_operations = importlib.import_module("dfode_kit.data_operations")
+def test_root_package_exports_point_to_canonical_io_helpers():
     root_package = importlib.import_module("dfode_kit")
     io_module = importlib.import_module("dfode_kit.data.io_hdf5")
 
-    assert legacy_data_operations.touch_h5 is io_module.touch_h5
-    assert legacy_data_operations.get_TPY_from_h5 is io_module.get_TPY_from_h5
     assert root_package.touch_h5 is io_module.touch_h5
     assert root_package.get_TPY_from_h5 is io_module.get_TPY_from_h5

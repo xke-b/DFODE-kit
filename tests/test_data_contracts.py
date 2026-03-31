@@ -27,12 +27,11 @@ def test_importing_data_contracts_does_not_require_cantera_or_torch():
     assert contracts_module.SCALAR_FIELDS_GROUP == "scalar_fields"
 
 
-def test_legacy_data_operations_contracts_path_re_exports_new_contracts_module():
-    legacy_contracts = importlib.import_module("dfode_kit.data_operations.contracts")
+def test_data_contracts_module_exports_expected_helpers():
     new_contracts = importlib.import_module("dfode_kit.data.contracts")
 
-    assert legacy_contracts.SCALAR_FIELDS_GROUP == new_contracts.SCALAR_FIELDS_GROUP
-    assert legacy_contracts.stack_scalar_field_datasets is new_contracts.stack_scalar_field_datasets
+    assert new_contracts.SCALAR_FIELDS_GROUP == "scalar_fields"
+    assert callable(new_contracts.stack_scalar_field_datasets)
 
 
 def test_stack_scalar_field_datasets_uses_deterministic_numeric_order(tmp_path):

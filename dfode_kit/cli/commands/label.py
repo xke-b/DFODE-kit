@@ -34,7 +34,7 @@ def add_command_parser(subparsers):
 def handle_command(args):
     import numpy as np
 
-    from dfode_kit.data_operations import label_npy as label_main
+    from dfode_kit.data import label_npy as label_main
 
     try:
         labeled_data = label_main(
