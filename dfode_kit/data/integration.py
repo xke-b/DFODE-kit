@@ -1,6 +1,5 @@
 import h5py
 import numpy as np
-import cantera as ct
 
 from dfode_kit.data.contracts import MECHANISM_ATTR, require_h5_attr, read_scalar_field_datasets
 from dfode_kit.data.io_hdf5 import get_TPY_from_h5, touch_h5
@@ -43,6 +42,7 @@ def load_model(model_path, device, model_class, model_layers):
 
 def predict_Y(model, model_path, d_arr, mech, device):
     import torch
+    import cantera as ct
 
     gas = ct.Solution(mech)
     n_species = gas.n_species
@@ -81,6 +81,8 @@ def predict_Y(model, model_path, d_arr, mech, device):
 
 
 def nn_integrate(orig_arr, model_path, device, model_class, model_layers, time_step, mech, frozen_temperature=510):
+    import cantera as ct
+
     model = load_model(model_path, device, model_class, model_layers)
 
     mask = orig_arr[:, 0] > frozen_temperature
@@ -123,6 +125,8 @@ def integrate_h5(
     nn_integration=False,
     model_settings=None,
 ):
+    import cantera as ct
+
     """Process scalar-field datasets and save CVODE / NN integration outputs."""
     with h5py.File(file_path, 'r') as f:
         mech = require_h5_attr(f, MECHANISM_ATTR)
@@ -183,6 +187,8 @@ def calculate_error(
     save_path2,
     error='RMSE'
 ):
+    import cantera as ct
+
     gas = ct.Solution(mech_path)
 
     with h5py.File(save_path1, 'r') as f1, h5py.File(save_path2, 'r') as f2:
