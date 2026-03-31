@@ -126,10 +126,12 @@ Typical next steps are:
 
 ```bash
 python -m dfode_kit.cli.main augment \
+  --source /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
-  --h5_file /path/to/run/oneD_flame_CH4_phi1/ch4_phi1_sample.h5 \
-  --output_file /path/to/data/ch4_phi1_aug.npy \
-  --dataset_num 20000
+  --save /path/to/data/ch4_phi1_aug.npy \
+  --preset random-local-combustion-v1 \
+  --target-size 20000 \
+  --apply
 
 python -m dfode_kit.cli.main label \
   --mech /path/to/mechanisms/CH4/gri30.yaml \
