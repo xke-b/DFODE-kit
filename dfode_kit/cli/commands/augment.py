@@ -26,6 +26,11 @@ def add_command_parser(subparsers):
         help='Requested number of augmented rows.',
     )
     augment_parser.add_argument('--seed', type=int, help='Random seed for reproducible augmentation.')
+    augment_parser.add_argument(
+        '--time',
+        action='append',
+        help='Select time snapshots by ordered snapshot index expression, e.g. 0, -1, 0:12, or ::10. Repeatable.',
+    )
     augment_parser.add_argument('--from-config', type=str, help='Load an augment plan/config JSON.')
     augment_parser.add_argument('--write-config', type=str, help='Write the resolved augment plan/config to JSON.')
     augment_parser.add_argument('--preview', action='store_true', help='Preview the resolved plan without executing augmentation.')
@@ -76,6 +81,12 @@ def _print_human_plan(plan: dict):
     print(f"save: {plan['save']}")
     print(f"target_size: {plan['target_size']}")
     print(f"seed: {plan['seed']}")
+    print(f"time_selectors: {plan['time_selectors']}")
+    print(f"resolved_snapshot_count: {plan['resolved_snapshot_count']}")
+    if plan['resolved_snapshot_names']:
+        print('resolved_snapshot_names:')
+        for name in plan['resolved_snapshot_names']:
+            print(f'  - {name}')
     print('resolved:')
     for key in sorted(plan['resolved']):
         print(f"  {key}: {plan['resolved'][key]}")

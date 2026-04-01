@@ -83,6 +83,7 @@ dfode-kit augment \
   --save /path/to/augmented.npy \
   --preset random-local-combustion-v1 \
   --target-size 20000 \
+  --time 0:12 \
   --apply
 ```
 
