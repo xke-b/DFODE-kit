@@ -49,6 +49,7 @@ dfode-kit augment [options]
 ### Optional but high-value
 
 - `--seed`
+- `--time` (repeatable snapshot index/slice selector)
 
 ## Current preset
 
@@ -66,6 +67,7 @@ dfode-kit augment \
   --mech /path/to/gri30.yaml \
   --preset random-local-combustion-v1 \
   --target-size 20000 \
+  --time 0:12 \
   --preview --json
 ```
 
@@ -90,6 +92,7 @@ dfode-kit augment \
   --save /path/to/aug.npy \
   --preset random-local-combustion-v1 \
   --target-size 20000 \
+  --time ::10 \
   --seed 1234 \
   --apply
 ```
@@ -102,6 +105,22 @@ dfode-kit augment \
   --save /path/to/aug.npy \
   --apply
 ```
+
+## Time snapshot selection
+
+When `--time` is omitted, augmentation uses all snapshots in the sampled HDF5 source.
+
+When `--time` is provided, it selects snapshots from the ordered HDF5 snapshot list by index expression.
+
+Supported forms include:
+
+- single index: `--time 0`
+- negative index: `--time -1`
+- slice: `--time 0:12`
+- stride: `--time ::10`
+- repeated selectors: `--time 0:5 --time -1`
+
+Selection is applied to snapshots only; all rows from each selected snapshot are included.
 
 ## Output behavior
 
@@ -122,6 +141,8 @@ In `--json` mode, the command reports a structured completion record including:
 - requested row count
 - returned row count
 - seed
+- resolved snapshot count
+- resolved snapshot names
 
 ## Action rule
 
