@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import cantera as ct
 import torch
 
 from dfode_kit.models.mlp import build_mlp
@@ -11,6 +10,11 @@ from dfode_kit.training.formation import formation_calculate
 from dfode_kit.training.registry import create_trainer, register_trainer
 from dfode_kit.training.supervised_physics import build_supervised_physics_trainer
 from dfode_kit.utils import BCT
+
+
+def _safe_std(tensor: torch.Tensor, dim: int, eps: float = 1e-12) -> torch.Tensor:
+    std = torch.std(tensor, dim=dim, unbiased=False)
+    return torch.where(std < eps, torch.ones_like(std), std)
 
 
 def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
@@ -31,9 +35,9 @@ def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
     ).to(device)
 
     features_mean = torch.mean(features, dim=0)
-    features_std = torch.std(features, dim=0)
+    features_std = _safe_std(features, dim=0)
     labels_mean = torch.mean(labels, dim=0)
-    labels_std = torch.std(labels, dim=0)
+    labels_std = _safe_std(labels, dim=0)
 
     normalized_features = (features - features_mean) / features_std
     normalized_labels = (labels - labels_mean) / labels_std
@@ -70,6 +74,8 @@ def train(
 
     _register_defaults()
     effective_config = with_overrides(config or default_training_config(), time_step=time_step)
+    import cantera as ct
+
     labeled_data = np.load(source_file)
 
     gas = ct.Solution(mech_path)
