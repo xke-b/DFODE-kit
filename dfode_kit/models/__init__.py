@@ -5,7 +5,9 @@ from importlib import import_module
 
 __all__ = [
     "MLP",
+    "FNO1d",
     "build_mlp",
+    "build_fno1d",
     "create_model",
     "get_model_factory",
     "register_model",
@@ -14,7 +16,9 @@ __all__ = [
 
 _ATTRIBUTE_MODULES = {
     "MLP": ("dfode_kit.models.mlp", "MLP"),
+    "FNO1d": ("dfode_kit.models.fno1d", "FNO1d"),
     "build_mlp": ("dfode_kit.models.mlp", "build_mlp"),
+    "build_fno1d": ("dfode_kit.models.fno1d", "build_fno1d"),
     "create_model": ("dfode_kit.models.registry", "create_model"),
     "get_model_factory": ("dfode_kit.models.registry", "get_model_factory"),
     "register_model": ("dfode_kit.models.registry", "register_model"),

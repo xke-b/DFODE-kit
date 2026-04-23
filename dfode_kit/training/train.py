@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 
+from dfode_kit.models.fno1d import build_fno1d
 from dfode_kit.models.mlp import build_mlp
 from dfode_kit.models.registry import create_model, register_model
 from dfode_kit.training.config import TrainingConfig, default_training_config, with_overrides
@@ -54,6 +55,7 @@ def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
 
 def _register_defaults() -> None:
     register_model("mlp", build_mlp)
+    register_model("fno1d", build_fno1d)
     register_trainer("supervised_physics", build_supervised_physics_trainer)
 
 
