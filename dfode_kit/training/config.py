@@ -25,6 +25,7 @@ class TrainerConfig:
     lr_decay_epoch: int = 500
     lr_decay_factor: float = 0.1
     batch_size: int = 20000
+    params: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

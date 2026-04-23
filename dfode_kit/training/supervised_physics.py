@@ -33,6 +33,7 @@ class SupervisedPhysicsTrainer:
         labels_std,
         formation_enthalpies,
         time_step: float,
+        **_,
     ) -> None:
         loss_fn = torch.nn.L1Loss()
         optimizer = self._build_optimizer(model)
