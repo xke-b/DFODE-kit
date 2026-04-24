@@ -38,9 +38,13 @@ class SupervisedPhysicsTrainer:
         power_lambda: float = 0.1,
         **_,
     ) -> None:
-        loss_fn = torch.nn.L1Loss()
         optimizer = self._build_optimizer(model)
         model.train()
+
+        raw_channel_weights = self.trainer_config.params.get("species_loss_channel_weights")
+        channel_weights = None
+        if raw_channel_weights is not None:
+            channel_weights = torch.tensor(raw_channel_weights, dtype=torch.float32, device=features.device)
 
         for epoch in range(self.trainer_config.max_epochs):
             if epoch > 0 and epoch % self.trainer_config.lr_decay_epoch == 0:
@@ -59,7 +63,6 @@ class SupervisedPhysicsTrainer:
                 optimizer.zero_grad()
 
                 preds = model(batch_features)
-                loss1 = loss_fn(preds, batch_labels)
 
                 species_offset = 1 if batch_labels.shape[1] == batch_features.shape[1] - 2 else 0
                 pred_species = preds[:, species_offset:]
@@ -67,6 +70,21 @@ class SupervisedPhysicsTrainer:
                 label_mean_species = labels_mean[species_offset:]
                 label_std_species = labels_std[species_offset:]
 
+                if species_offset > 0:
+                    loss_temp = torch.mean(torch.abs(preds[:, :species_offset] - batch_labels[:, :species_offset]))
+                else:
+                    loss_temp = torch.tensor(0.0, device=preds.device)
+
+                if channel_weights is not None:
+                    if channel_weights.numel() != pred_species.shape[1]:
+                        raise ValueError(
+                            f"species_loss_channel_weights length {channel_weights.numel()} does not match species output dim {pred_species.shape[1]}"
+                        )
+                    loss_species = (torch.abs(pred_species - label_species) * channel_weights.unsqueeze(0)).mean()
+                else:
+                    loss_species = torch.mean(torch.abs(pred_species - label_species))
+
+                loss1 = loss_temp + loss_species
                 base_species_bct = batch_features[:, 2:-1] * features_std[2:-1] + features_mean[2:-1]
                 Y_in = inverse_BCT_torch(base_species_bct)
                 pred_species_raw = pred_species * label_std_species + label_mean_species
@@ -78,15 +96,15 @@ class SupervisedPhysicsTrainer:
                     Y_out = inverse_BCT_torch(pred_species_raw + base_species_bct)
                     Y_target = inverse_BCT_torch(label_species_raw + base_species_bct)
 
-                loss2 = loss_fn(Y_out.sum(axis=1), Y_in.sum(axis=1))
+                loss2 = torch.mean(torch.abs(Y_out.sum(axis=1) - Y_in.sum(axis=1)))
 
                 Y_out_total = torch.cat((Y_out, (1 - Y_out.sum(axis=1)).reshape(Y_out.shape[0], 1)), axis=1)
                 Y_target_total = torch.cat((Y_target, (1 - Y_target.sum(axis=1)).reshape(Y_target.shape[0], 1)), axis=1)
 
-                loss3 = loss_fn(
-                    (formation_enthalpies * Y_out_total).sum(axis=1),
-                    (formation_enthalpies * Y_target_total).sum(axis=1),
-                ) / time_step
+                loss3 = torch.mean(torch.abs(
+                    (formation_enthalpies * Y_out_total).sum(axis=1)
+                    - (formation_enthalpies * Y_target_total).sum(axis=1)
+                )) / time_step
                 loss = loss1 + loss2 + loss3 / 1e13
 
                 total_loss1 += loss1.item()
