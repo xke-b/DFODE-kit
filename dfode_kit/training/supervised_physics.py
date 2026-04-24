@@ -3,6 +3,7 @@ from __future__ import annotations
 import torch
 
 from dfode_kit.training.config import OptimizerConfig, TrainerConfig
+from dfode_kit.utils import inverse_BCT_torch, inverse_power_transform_torch
 
 
 class SupervisedPhysicsTrainer:
@@ -33,6 +34,8 @@ class SupervisedPhysicsTrainer:
         labels_std,
         formation_enthalpies,
         time_step: float,
+        target_mode: str = "species_only",
+        power_lambda: float = 0.1,
         **_,
     ) -> None:
         loss_fn = torch.nn.L1Loss()
@@ -58,10 +61,22 @@ class SupervisedPhysicsTrainer:
                 preds = model(batch_features)
                 loss1 = loss_fn(preds, batch_labels)
 
-                base_y = batch_features[:, 2:-1] * features_std[2:-1] + features_mean[2:-1]
-                Y_in = (base_y * 0.1 + 1) ** 10
-                Y_out = (((preds * labels_std + labels_mean) + base_y) * 0.1 + 1) ** 10
-                Y_target = (((batch_labels * labels_std + labels_mean) + base_y) * 0.1 + 1) ** 10
+                species_offset = 1 if batch_labels.shape[1] == batch_features.shape[1] - 2 else 0
+                pred_species = preds[:, species_offset:]
+                label_species = batch_labels[:, species_offset:]
+                label_mean_species = labels_mean[species_offset:]
+                label_std_species = labels_std[species_offset:]
+
+                base_species_bct = batch_features[:, 2:-1] * features_std[2:-1] + features_mean[2:-1]
+                Y_in = inverse_BCT_torch(base_species_bct)
+                pred_species_raw = pred_species * label_std_species + label_mean_species
+                label_species_raw = label_species * label_std_species + label_mean_species
+                if target_mode == "species_power_delta":
+                    Y_out = torch.clamp(Y_in + inverse_power_transform_torch(pred_species_raw, lam=power_lambda), 0.0, 1.0)
+                    Y_target = torch.clamp(Y_in + inverse_power_transform_torch(label_species_raw, lam=power_lambda), 0.0, 1.0)
+                else:
+                    Y_out = inverse_BCT_torch(pred_species_raw + base_species_bct)
+                    Y_target = inverse_BCT_torch(label_species_raw + base_species_bct)
 
                 loss2 = loss_fn(Y_out.sum(axis=1), Y_in.sum(axis=1))
 

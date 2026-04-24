@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import replace
+import random
+
 import numpy as np
 import torch
 
@@ -11,7 +14,7 @@ from dfode_kit.training.efno_style import build_efno_style_trainer
 from dfode_kit.training.formation import formation_calculate
 from dfode_kit.training.registry import create_trainer, register_trainer
 from dfode_kit.training.supervised_physics import build_supervised_physics_trainer
-from dfode_kit.utils import BCT
+from dfode_kit.utils import BCT, power_transform
 
 
 def _safe_std(tensor: torch.Tensor, dim: int, eps: float = 1e-12) -> torch.Tensor:
@@ -47,7 +50,14 @@ def _build_element_mass_matrix(gas) -> np.ndarray:
 
 
 
-def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
+def _prepare_training_tensors(
+    labeled_data: np.ndarray,
+    n_species: int,
+    device,
+    *,
+    target_mode: str = "species_only",
+    power_lambda: float = 0.1,
+):
     thermochem_states1 = labeled_data[:, 0 : 2 + n_species].copy()
     thermochem_states2 = labeled_data[:, 2 + n_species :].copy()
 
@@ -59,10 +69,53 @@ def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
         np.hstack((thermochem_states1[:, :2], BCT(thermochem_states1[:, 2:]))),
         dtype=torch.float32,
     ).to(device)
-    labels = torch.tensor(
-        BCT(thermochem_states2[:, 2:-1]) - BCT(thermochem_states1[:, 2:-1]),
-        dtype=torch.float32,
-    ).to(device)
+
+    if target_mode == "species_only":
+        labels_array = BCT(thermochem_states2[:, 2:-1]) - BCT(thermochem_states1[:, 2:-1])
+    elif target_mode == "species_power_delta":
+        labels_array = power_transform(thermochem_states2[:, 2:-1] - thermochem_states1[:, 2:-1], lam=power_lambda)
+    elif target_mode == "temperature_species":
+        delta_t = (thermochem_states2[:, :1] - thermochem_states1[:, :1]).astype(np.float32)
+        delta_species = BCT(thermochem_states2[:, 2:-1]) - BCT(thermochem_states1[:, 2:-1])
+        labels_array = np.hstack((delta_t, delta_species))
+    elif target_mode == "temperature_next_species":
+        next_t = thermochem_states2[:, :1].astype(np.float32)
+        delta_species = BCT(thermochem_states2[:, 2:-1]) - BCT(thermochem_states1[:, 2:-1])
+        labels_array = np.hstack((next_t, delta_species))
+    else:
+        raise ValueError(f"Unsupported target_mode '{target_mode}'")
+
+    labels = torch.tensor(labels_array, dtype=torch.float32).to(device)
+
+    rollout_mask_array = np.zeros(len(labeled_data), dtype=np.float32)
+    rollout_next_labels_array = np.zeros_like(labels_array, dtype=np.float32)
+    rollout_next_features_array = np.zeros_like(features.cpu().numpy(), dtype=np.float32)
+    for i in range(len(labeled_data) - 1):
+        if np.allclose(thermochem_states2[i], thermochem_states1[i + 1], rtol=1e-6, atol=1e-8):
+            rollout_mask_array[i] = 1.0
+            rollout_next_features_array[i] = np.hstack((
+                thermochem_states1[i + 1, :2],
+                BCT(thermochem_states1[i + 1, 2:]),
+            ))
+            if target_mode == "species_only":
+                rollout_next_labels_array[i] = (
+                    BCT(thermochem_states2[i + 1, 2:-1]) - BCT(thermochem_states1[i + 1, 2:-1])
+                )
+            elif target_mode == "species_power_delta":
+                rollout_next_labels_array[i] = power_transform(
+                    thermochem_states2[i + 1, 2:-1] - thermochem_states1[i + 1, 2:-1],
+                    lam=power_lambda,
+                )
+            elif target_mode == "temperature_species":
+                rollout_next_labels_array[i] = np.hstack((
+                    (thermochem_states2[i + 1, :1] - thermochem_states1[i + 1, :1]).astype(np.float32),
+                    BCT(thermochem_states2[i + 1, 2:-1]) - BCT(thermochem_states1[i + 1, 2:-1]),
+                ))
+            elif target_mode == "temperature_next_species":
+                rollout_next_labels_array[i] = np.hstack((
+                    thermochem_states2[i + 1, :1].astype(np.float32),
+                    BCT(thermochem_states2[i + 1, 2:-1]) - BCT(thermochem_states1[i + 1, 2:-1]),
+                ))
 
     features_mean = torch.mean(features, dim=0)
     features_std = _safe_std(features, dim=0)
@@ -71,6 +124,10 @@ def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
 
     normalized_features = (features - features_mean) / features_std
     normalized_labels = (labels - labels_mean) / labels_std
+    rollout_next_labels = torch.tensor(rollout_next_labels_array, dtype=torch.float32).to(device)
+    normalized_rollout_next_labels = (rollout_next_labels - labels_mean) / labels_std
+    rollout_next_features = torch.tensor(rollout_next_features_array, dtype=torch.float32).to(device)
+    normalized_rollout_next_features = (rollout_next_features - features_mean) / features_std
 
     return {
         "features": normalized_features,
@@ -80,6 +137,11 @@ def _prepare_training_tensors(labeled_data: np.ndarray, n_species: int, device):
         "labels_mean": labels_mean,
         "labels_std": labels_std,
         "sample_weights": _compute_sample_weights(thermochem_states1, thermochem_states2).to(device),
+        "rollout_next_labels": normalized_rollout_next_labels,
+        "rollout_next_features": normalized_rollout_next_features,
+        "rollout_mask": torch.tensor(rollout_mask_array, dtype=torch.float32).to(device),
+        "target_mode": target_mode,
+        "power_lambda": power_lambda,
     }
 
 
@@ -88,6 +150,19 @@ def _register_defaults() -> None:
     register_model("fno1d", build_fno1d)
     register_trainer("supervised_physics", build_supervised_physics_trainer)
     register_trainer("efno_style", build_efno_style_trainer)
+
+
+def _set_random_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    if torch.backends.cudnn.is_available():
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
 
 
@@ -109,6 +184,8 @@ def train(
     effective_config = with_overrides(config or default_training_config(), time_step=time_step)
     import cantera as ct
 
+    _set_random_seed(effective_config.seed)
+
     labeled_data = np.load(source_file)
 
     gas = ct.Solution(mech_path)
@@ -117,14 +194,29 @@ def train(
     element_mass_matrix = _build_element_mass_matrix(gas)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    target_mode = str(effective_config.trainer.params.get("target_mode", "species_only"))
+    power_lambda = float(effective_config.trainer.params.get("power_lambda", 0.1))
+    model_params = dict(effective_config.model.params)
+    model_params.setdefault(
+        "output_dim",
+        n_species if target_mode in {"temperature_species", "temperature_next_species"} else n_species - 1,
+    )
+    model_config = replace(effective_config.model, params=model_params)
+
     model = create_model(
         effective_config.model.name,
-        model_config=effective_config.model,
+        model_config=model_config,
         n_species=n_species,
         device=device,
     )
 
-    training_tensors = _prepare_training_tensors(labeled_data, n_species, device)
+    training_tensors = _prepare_training_tensors(
+        labeled_data,
+        n_species,
+        device,
+        target_mode=target_mode,
+        power_lambda=power_lambda,
+    )
     training_tensors["formation_enthalpies"] = torch.tensor(
         formation_enthalpies,
         dtype=torch.float32,
@@ -151,7 +243,7 @@ def train(
             "training_config": {
                 "model": {
                     "name": effective_config.model.name,
-                    "params": dict(effective_config.model.params),
+                    "params": dict(model_config.params),
                 },
                 "optimizer": {
                     "name": effective_config.optimizer.name,
@@ -166,6 +258,7 @@ def train(
                     "params": dict(effective_config.trainer.params),
                 },
                 "time_step": effective_config.time_step,
+                "seed": effective_config.seed,
             },
         },
         output_path,

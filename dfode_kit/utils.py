@@ -132,5 +132,24 @@ def inverse_BCT_torch(y, lam=0.1):
             raise ValueError('FATAL ERROR: Invalid input for inverse_BCT_torch.')
         else:
             return torch.pow(lam * y + 1, 1 / lam)
-        
-        
+
+
+def power_transform(x, lam=0.1):
+    x = np.asarray(x)
+    return np.sign(x) * np.power(np.abs(x), lam) / lam
+
+
+
+def inverse_power_transform(y, lam=0.1):
+    y = np.asarray(y)
+    return np.sign(y) * np.power(np.abs(y) * lam, 1 / lam)
+
+
+
+def power_transform_torch(x, lam=0.1):
+    return torch.sign(x) * torch.pow(torch.abs(x), lam) / lam
+
+
+
+def inverse_power_transform_torch(y, lam=0.1):
+    return torch.sign(y) * torch.pow(torch.abs(y) * lam, 1 / lam)
