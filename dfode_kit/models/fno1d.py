@@ -45,6 +45,9 @@ class FNO1d(torch.nn.Module):
         modes: int = 8,
         n_layers: int = 4,
         activation: str = "gelu",
+        attention_heads: int = 0,
+        attention_layers: int = 0,
+        attention_dropout: float = 0.0,
     ) -> None:
         super().__init__()
         if input_tokens <= 0:
@@ -55,12 +58,23 @@ class FNO1d(torch.nn.Module):
             raise ValueError("n_layers must be positive")
         if width <= 0:
             raise ValueError("width must be positive")
+        if attention_layers < 0:
+            raise ValueError("attention_layers must be non-negative")
+        if attention_heads < 0:
+            raise ValueError("attention_heads must be non-negative")
+        if attention_layers > 0 and attention_heads <= 0:
+            raise ValueError("attention_heads must be positive when attention_layers > 0")
+        if attention_layers > 0 and width % attention_heads != 0:
+            raise ValueError("width must be divisible by attention_heads")
 
         self.input_tokens = input_tokens
         self.output_tokens = output_tokens
         self.width = width
         self.modes = min(modes, input_tokens // 2 + 1)
         self.n_layers = n_layers
+        self.attention_heads = attention_heads
+        self.attention_layers = attention_layers
+        self.attention_dropout = attention_dropout
 
         self.lift = torch.nn.Linear(1, width)
         self.spectral_layers = torch.nn.ModuleList(
@@ -69,6 +83,28 @@ class FNO1d(torch.nn.Module):
         self.pointwise_layers = torch.nn.ModuleList(
             [torch.nn.Conv1d(width, width, kernel_size=1) for _ in range(n_layers)]
         )
+        self.attention_norms = torch.nn.ModuleList()
+        self.attention_layers_seq = torch.nn.ModuleList()
+        self.attention_ffns = torch.nn.ModuleList()
+        self.attention_ffn_norms = torch.nn.ModuleList()
+        for _ in range(attention_layers):
+            self.attention_norms.append(torch.nn.LayerNorm(width))
+            self.attention_layers_seq.append(
+                torch.nn.MultiheadAttention(
+                    embed_dim=width,
+                    num_heads=attention_heads,
+                    dropout=attention_dropout,
+                    batch_first=True,
+                )
+            )
+            self.attention_ffn_norms.append(torch.nn.LayerNorm(width))
+            self.attention_ffns.append(
+                torch.nn.Sequential(
+                    torch.nn.Linear(width, width),
+                    _make_activation(activation),
+                    torch.nn.Linear(width, width),
+                )
+            )
         self.project_channels = torch.nn.Sequential(
             torch.nn.Linear(width, width),
             _make_activation(activation),
@@ -92,6 +128,16 @@ class FNO1d(torch.nn.Module):
             x = self.activation(spectral(x) + pointwise(x))
 
         x = x.permute(0, 2, 1)  # [batch, tokens, width]
+        for norm, attn, ffn_norm, ffn in zip(
+            self.attention_norms,
+            self.attention_layers_seq,
+            self.attention_ffn_norms,
+            self.attention_ffns,
+        ):
+            attn_in = norm(x)
+            attn_out, _ = attn(attn_in, attn_in, attn_in, need_weights=False)
+            x = x + attn_out
+            x = x + ffn(ffn_norm(x))
         x = self.project_channels(x).squeeze(-1)  # [batch, tokens]
         return self.project_tokens(x)
 
@@ -109,10 +155,13 @@ def build_fno1d(*, model_config: ModelConfig, n_species: int, device):
     params = dict(model_config.params)
     model = FNO1d(
         input_tokens=2 + n_species,
-        output_tokens=n_species - 1,
+        output_tokens=int(params.get("output_dim", n_species - 1)),
         width=int(params.get("width", 32)),
         modes=int(params.get("modes", 8)),
         n_layers=int(params.get("n_layers", 4)),
         activation=str(params.get("activation", "gelu")),
+        attention_heads=int(params.get("attention_heads", 0)),
+        attention_layers=int(params.get("attention_layers", 0)),
+        attention_dropout=float(params.get("attention_dropout", 0.0)),
     )
     return model.to(device)
