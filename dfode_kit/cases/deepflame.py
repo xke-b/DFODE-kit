@@ -26,10 +26,18 @@ def update_one_d_sample_config(cfg: OneDFreelyPropagatingFlameConfig, case_path)
     with open(new_file_path, 'r') as file:
         lines = file.readlines()
 
+    def _line_declares_key(line_text: str, key: str) -> bool:
+        stripped = line_text.lstrip()
+        if not stripped.startswith(key):
+            return False
+        remainder = stripped[len(key):]
+        return remainder[:1].isspace() or remainder[:1] == ''
+
     for i, line in enumerate(lines):
         for key, value in replacements.items():
-            if key in line:
+            if _line_declares_key(line, key):
                 lines[i] = line.replace('placeHolder', str(value))
+                break
 
         if 'unburntStates' in line:
             state_strings = [f'{"TUnburnt":<20}{cfg.initial_gas.T:>16.10f};']
